@@ -1,25 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET /api/rules - получить правила пользователя
+// Временный userId для тестирования
+const TEST_USER_ID = 'test-user-123';
+
+// GET /api/rules - получить все правила пользователя
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 }
-      );
-    }
+    // Временно используем hardcoded userId для тестирования
+    const userId = TEST_USER_ID;
 
     const rules = await prisma.ruleProfile.findMany({
       where: { userId },
       orderBy: { key: 'asc' }
     });
 
-    return NextResponse.json({ rules });
+    return NextResponse.json(rules);
   } catch (error) {
     console.error('Error fetching rules:', error);
     return NextResponse.json(
@@ -29,30 +25,23 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/rules - создать или обновить правило
+// POST /api/rules - создать новое правило
 export async function POST(request: NextRequest) {
   try {
-    const { userId, key, params, enabled } = await request.json();
+    const { key, params, enabled } = await request.json();
 
-    if (!userId || !key || !params) {
+    if (!key || !params) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'key and params are required' },
         { status: 400 }
       );
     }
 
-    const rule = await prisma.ruleProfile.upsert({
-      where: { 
-        userId_key: {
-          userId,
-          key
-        }
-      },
-      update: {
-        params: JSON.stringify(params),
-        enabled: enabled ?? true
-      },
-      create: {
+    // Временно используем hardcoded userId для тестирования
+    const userId = TEST_USER_ID;
+
+    const rule = await prisma.ruleProfile.create({
+      data: {
         userId,
         key,
         params: JSON.stringify(params),
@@ -60,7 +49,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ rule });
+    return NextResponse.json(rule, { status: 201 });
   } catch (error) {
     console.error('Error creating/updating rule:', error);
     return NextResponse.json(
@@ -73,29 +62,25 @@ export async function POST(request: NextRequest) {
 // PUT /api/rules - обновить правило
 export async function PUT(request: NextRequest) {
   try {
-    const { id, params, enabled } = await request.json();
+    const { id, key, params, enabled } = await request.json();
 
-    if (!id) {
+    if (!id || !key || !params) {
       return NextResponse.json(
-        { error: 'rule id is required' },
+        { error: 'id, key and params are required' },
         { status: 400 }
       );
     }
 
-    const updateData: Record<string, unknown> = {};
-    if (params !== undefined) {
-      updateData.params = JSON.stringify(params);
-    }
-    if (enabled !== undefined) {
-      updateData.enabled = enabled as boolean;
-    }
-
     const rule = await prisma.ruleProfile.update({
       where: { id },
-      data: updateData
+      data: {
+        key,
+        params: JSON.stringify(params),
+        enabled: enabled ?? true
+      }
     });
 
-    return NextResponse.json({ rule });
+    return NextResponse.json(rule);
   } catch (error) {
     console.error('Error updating rule:', error);
     return NextResponse.json(
