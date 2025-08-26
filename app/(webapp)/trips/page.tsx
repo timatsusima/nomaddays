@@ -5,6 +5,106 @@ import { CountrySelector } from '@/components/CountrySelector';
 import { Button } from '@/components/ui/Button';
 import Navigation from '@/components/Navigation';
 
+// Импортируем COUNTRIES для функций getCountryFlag и getCountryName
+const COUNTRIES = [
+  { code: 'DE', name: 'Германия', flag: '🇩🇪' },
+  { code: 'FR', name: 'Франция', flag: '🇫🇷' },
+  { code: 'IT', name: 'Италия', flag: '🇮🇹' },
+  { code: 'ES', name: 'Испания', flag: '🇪🇸' },
+  { code: 'NL', name: 'Нидерланды', flag: '🇳🇱' },
+  { code: 'BE', name: 'Бельгия', flag: '🇧🇪' },
+  { code: 'AT', name: 'Австрия', flag: '🇦🇹' },
+  { code: 'CH', name: 'Швейцария', flag: '🇨🇭' },
+  { code: 'PL', name: 'Польша', flag: '🇵🇱' },
+  { code: 'CZ', name: 'Чехия', flag: '🇨🇿' },
+  { code: 'HU', name: 'Венгрия', flag: '🇭🇺' },
+  { code: 'SK', name: 'Словакия', flag: '🇸🇰' },
+  { code: 'PT', name: 'Португалия', flag: '🇵🇹' },
+  { code: 'IE', name: 'Ирландия', flag: '🇮🇪' },
+  { code: 'FI', name: 'Финляндия', flag: '🇫🇮' },
+  { code: 'SE', name: 'Швеция', flag: '🇸🇪' },
+  { code: 'DK', name: 'Дания', flag: '🇩🇰' },
+  { code: 'NO', name: 'Норвегия', flag: '🇳🇴' },
+  { code: 'IS', name: 'Исландия', flag: '🇮🇸' },
+  { code: 'EE', name: 'Эстония', flag: '🇪🇪' },
+  { code: 'LV', name: 'Латвия', flag: '🇱🇻' },
+  { code: 'LT', name: 'Литва', flag: '🇱🇹' },
+  { code: 'LU', name: 'Люксембург', flag: '🇱🇺' },
+  { code: 'MT', name: 'Мальта', flag: '🇲🇹' },
+  { code: 'CY', name: 'Кипр', flag: '🇨🇾' },
+  { code: 'US', name: 'США', flag: '🇺🇸' },
+  { code: 'CA', name: 'Канада', flag: '🇨🇦' },
+  { code: 'GB', name: 'Великобритания', flag: '🇬🇧' },
+  { code: 'AU', name: 'Австралия', flag: '🇦🇺' },
+  { code: 'NZ', name: 'Новая Зеландия', flag: '🇳🇿' },
+  { code: 'JP', name: 'Япония', flag: '🇯🇵' },
+  { code: 'KR', name: 'Южная Корея', flag: '🇰🇷' },
+  { code: 'SG', name: 'Сингапур', flag: '🇸🇬' },
+  { code: 'TH', name: 'Таиланд', flag: '🇹🇭' },
+  { code: 'VN', name: 'Вьетнам', flag: '🇻🇳' },
+  { code: 'MY', name: 'Малайзия', flag: '🇲🇾' },
+  { code: 'ID', name: 'Индонезия', flag: '🇮🇩' },
+  { code: 'PH', name: 'Филиппины', flag: '🇵🇭' },
+  { code: 'IN', name: 'Индия', flag: '🇮🇳' },
+  { code: 'BR', name: 'Бразилия', flag: '🇧🇷' },
+  { code: 'AR', name: 'Аргентина', flag: '🇦🇷' },
+  { code: 'MX', name: 'Мексика', flag: '🇲🇽' },
+  { code: 'CL', name: 'Чили', flag: '🇨🇱' },
+  { code: 'CO', name: 'Колумбия', flag: '🇨🇴' },
+  { code: 'PE', name: 'Перу', flag: '🇵🇪' },
+  { code: 'UY', name: 'Уругвай', flag: '🇺🇾' },
+  { code: 'ZA', name: 'ЮАР', flag: '🇿🇦' },
+  { code: 'EG', name: 'Египет', flag: '🇪🇬' },
+  { code: 'MA', name: 'Марокко', flag: '🇲🇦' },
+  { code: 'TR', name: 'Турция', flag: '🇹🇷' },
+  { code: 'IL', name: 'Израиль', flag: '🇮🇱' },
+  { code: 'AE', name: 'ОАЭ', flag: '🇦🇪' },
+  { code: 'SA', name: 'Саудовская Аравия', flag: '🇸🇦' },
+  { code: 'QA', name: 'Катар', flag: '🇶🇦' },
+  { code: 'KW', name: 'Кувейт', flag: '🇰🇼' },
+  { code: 'BH', name: 'Бахрейн', flag: '🇧🇭' },
+  { code: 'OM', name: 'Оман', flag: '🇴🇲' },
+  { code: 'JO', name: 'Иордания', flag: '🇯🇴' },
+  { code: 'LB', name: 'Ливан', flag: '🇱🇧' },
+  { code: 'SY', name: 'Сирия', flag: '🇸🇾' },
+  { code: 'IQ', name: 'Ирак', flag: '🇮🇶' },
+  { code: 'IR', name: 'Иран', flag: '🇮🇷' },
+  { code: 'AF', name: 'Афганистан', flag: '🇦🇫' },
+  { code: 'PK', name: 'Пакистан', flag: '🇵🇰' },
+  { code: 'BD', name: 'Бангладеш', flag: '🇧🇩' },
+  { code: 'LK', name: 'Шри-Ланка', flag: '🇱🇰' },
+  { code: 'NP', name: 'Непал', flag: '🇳🇵' },
+  { code: 'BT', name: 'Бутан', flag: '🇧🇹' },
+  { code: 'MM', name: 'Мьянма', flag: '🇲🇲' },
+  { code: 'LA', name: 'Лаос', flag: '🇱🇦' },
+  { code: 'KH', name: 'Камбоджа', flag: '🇰🇭' },
+  { code: 'MN', name: 'Монголия', flag: '🇲🇳' },
+  { code: 'KZ', name: 'Казахстан', flag: '🇰🇿' },
+  { code: 'UZ', name: 'Узбекистан', flag: '🇺🇿' },
+  { code: 'KG', name: 'Кыргызстан', flag: '🇰🇬' },
+  { code: 'TJ', name: 'Таджикистан', flag: '🇹🇯' },
+  { code: 'TM', name: 'Туркменистан', flag: '🇹🇲' },
+  { code: 'AZ', name: 'Азербайджан', flag: '🇦🇿' },
+  { code: 'GE', name: 'Грузия', flag: '🇬🇪' },
+  { code: 'AM', name: 'Армения', flag: '🇦🇲' },
+  { code: 'RU', name: 'Россия', flag: '🇷🇺' },
+  { code: 'BY', name: 'Беларусь', flag: '🇧🇾' },
+  { code: 'UA', name: 'Украина', flag: '🇺🇦' },
+  { code: 'MD', name: 'Молдова', flag: '🇲🇩' },
+  { code: 'RS', name: 'Сербия', flag: '🇷🇸' },
+  { code: 'ME', name: 'Черногория', flag: '🇲🇪' },
+  { code: 'BA', name: 'Босния и Герцеговина', flag: '🇧🇦' },
+  { code: 'MK', name: 'Северная Македония', flag: '🇲🇰' },
+  { code: 'AL', name: 'Албания', flag: '🇦🇱' },
+  { code: 'XK', name: 'Косово', flag: '🇽🇰' },
+  { code: 'AD', name: 'Андорра', flag: '🇱🇮' },
+  { code: 'LI', name: 'Лихтенштейн', flag: '🇱🇮' },
+  { code: 'MC', name: 'Монако', flag: '🇲🇨' },
+  { code: 'SM', name: 'Сан-Марино', flag: '🇸🇲' },
+  { code: 'VA', name: 'Ватикан', flag: '🇻🇦' },
+  { code: 'OUTSIDE', name: 'Вне РК', flag: '🌍' }
+];
+
 interface Trip {
   id: string;
   countryCode: string;
@@ -98,25 +198,13 @@ export default function TripsPage() {
   };
 
   const getCountryFlag = (countryCode: string) => {
-    const countries = [
-      { code: 'DE', flag: '🇩🇪' },
-      { code: 'FR', flag: '🇫🇷' },
-      { code: 'IT', flag: '🇮🇹' },
-      { code: 'ES', flag: '🇪🇸' },
-      { code: 'OUTSIDE', flag: '🌍' }
-    ];
-    return countries.find(c => c.code === countryCode)?.flag || '🏳️';
+    const country = COUNTRIES.find(c => c.code === countryCode);
+    return country?.flag || '🏳️';
   };
 
   const getCountryName = (countryCode: string) => {
-    const countries = [
-      { code: 'DE', name: 'Германия' },
-      { code: 'FR', name: 'Франция' },
-      { code: 'IT', name: 'Италия' },
-      { code: 'ES', name: 'Испания' },
-      { code: 'OUTSIDE', name: 'Вне РК' }
-    ];
-    return countries.find(c => c.code === countryCode)?.name || countryCode;
+    const country = COUNTRIES.find(c => c.code === countryCode);
+    return country?.name || countryCode;
   };
 
   if (isLoading) {
