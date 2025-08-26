@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tgUserId  String   @unique
+  createdAt DateTime @default(now())
+  
+  trips        Trip[]
+  ruleProfiles RuleProfile[]
+  settings     Setting[]
+  
+  @@map("users")
+}
+
+model Country {
+  code String @id
+  name String
+  
+  trips Trip[]
+  
+  @@map("countries")
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  userId      String
+  countryCode String
+  entryDate   DateTime
+  exitDate    DateTime
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  country Country @relation(fields: [countryCode], references: [code])
+  
+  @@map("trips")
+}
+
+model RuleProfile {
+  id     String @id @default(cuid())
+  userId String?
+  key    String
+  params Json
+  enabled Boolean @default(true)
+  
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("rule_profiles")
+}
+
+model Setting {
+  id       String @id @default(cuid())
+  userId   String @unique
+  timezone String @default("UTC")
+  locale   String @default("en")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("settings")
+}
