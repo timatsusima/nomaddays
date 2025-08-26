@@ -109,13 +109,13 @@ async function main() {
         }
       },
       update: {
-        params: rule.params,
+        params: JSON.stringify(rule.params),
         enabled: rule.enabled
       },
       create: {
         userId: testUser.id,
         key: rule.key,
-        params: rule.params,
+        params: JSON.stringify(rule.params),
         enabled: rule.enabled
       }
     });

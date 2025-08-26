@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { createHmac, createHash } from 'crypto';
 
 export interface TelegramInitData {
   query_id: string;
@@ -43,12 +43,12 @@ export function validateInitData(initData: string): TelegramUser | null {
       .join('\n');
     
     // Создаём секретный ключ
-    const secretKey = crypto.createHmac('sha256', 'WebAppData')
+    const secretKey = createHmac('sha256', 'WebAppData')
       .update(process.env.BOT_TOKEN || '')
       .digest();
     
     // Вычисляем хеш
-    const calculatedHash = crypto.createHmac('sha256', secretKey)
+    const calculatedHash = createHmac('sha256', secretKey)
       .update(sortedParams)
       .digest('hex');
     

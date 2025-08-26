@@ -40,7 +40,7 @@ export class RulesEngine {
     trips: Trip[],
     plannedTrip: DateRange
   ): RuleResult {
-    const params = rule.params;
+    const params = JSON.parse(rule.params);
     let usedDays = 0;
     let availableDays = 0;
     let isCompliant = true;

@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
         }
       },
       update: {
-        params,
+        params: JSON.stringify(params),
         enabled: enabled ?? true
       },
       create: {
         userId,
         key,
-        params,
+        params: JSON.stringify(params),
         enabled: enabled ?? true
       }
     });
@@ -82,12 +82,17 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const updateData: any = {};
+    if (params !== undefined) {
+      updateData.params = JSON.stringify(params);
+    }
+    if (enabled !== undefined) {
+      updateData.enabled = enabled;
+    }
+
     const rule = await prisma.ruleProfile.update({
       where: { id },
-      data: {
-        params: params || undefined,
-        enabled: enabled !== undefined ? enabled : undefined
-      }
+      data: updateData
     });
 
     return NextResponse.json({ rule });

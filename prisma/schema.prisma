@@ -48,11 +48,12 @@ model RuleProfile {
   id     String @id @default(cuid())
   userId String?
   key    String
-  params Json
+  params String // JSON string для SQLite совместимости
   enabled Boolean @default(true)
   
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  @@unique([userId, key])
   @@map("rule_profiles")
 }
 

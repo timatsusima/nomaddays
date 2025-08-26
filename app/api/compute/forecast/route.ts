@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const engineRules = rules.map(rule => ({
       id: rule.id,
       key: rule.key,
-      params: rule.params as any,
+      params: rule.params, // Уже JSON строка
       enabled: rule.enabled
     }));
 
