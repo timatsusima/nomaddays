@@ -158,7 +158,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
         {selectedCountry ? (
           <div className="flex items-center space-x-3">
             <span className="text-xl">{selectedCountry.flag}</span>
-            <span className="text-gray-900">{selectedCountry.name}</span>
+            <span className="text-gray-900 font-medium">{selectedCountry.name}</span>
             <span className="text-gray-500 text-sm">({selectedCountry.code})</span>
           </div>
         ) : (
@@ -175,33 +175,41 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden">
-          <div className="p-3 border-b border-gray-100">
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-80 overflow-hidden">
+          <div className="sticky top-0 p-3 border-b border-gray-100 bg-gray-50">
             <input
               type="text"
               placeholder="Поиск страны..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               autoFocus
             />
           </div>
           
-          <div className="max-h-48 overflow-y-auto">
-            {filteredCountries.map((country) => (
-              <button
-                key={country.code}
-                type="button"
-                onClick={() => handleSelect(country)}
-                className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-xl">{country.flag}</span>
-                  <span className="text-gray-900">{country.name}</span>
-                  <span className="text-gray-500 text-sm">({country.code})</span>
-                </div>
-              </button>
-            ))}
+          <div className="max-h-64 overflow-y-auto">
+            {filteredCountries.length === 0 ? (
+              <div className="p-4 text-center text-gray-500 text-sm">
+                Страна не найдена
+              </div>
+            ) : (
+              filteredCountries.map((country) => (
+                <button
+                  key={country.code}
+                  type="button"
+                  onClick={() => handleSelect(country)}
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-xl">{country.flag}</span>
+                    <div className="flex-1 text-left">
+                      <div className="font-medium text-gray-900">{country.name}</div>
+                      <div className="text-sm text-gray-500">({country.code})</div>
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}
