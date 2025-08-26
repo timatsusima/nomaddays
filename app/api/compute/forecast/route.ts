@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { RulesEngine } from '@/core/rules/engine';
-import { ForecastRequest, RuleParams } from '@/core/rules/types';
+import { ForecastRequest, RuleParams, Trip } from '@/core/rules/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Конвертируем в формат для движка
-    const engineTrips = trips.map(trip => ({
+    const engineTrips = trips.map((trip: Trip) => ({
       id: trip.id,
       countryCode: trip.countryCode,
       entryDate: trip.entryDate,
