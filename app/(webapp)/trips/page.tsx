@@ -16,6 +16,7 @@ export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     countryCode: '',
     entryDate: '',
@@ -28,13 +29,17 @@ export default function TripsPage() {
 
   const fetchTrips = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch('/api/trips');
       if (response.ok) {
         const data = await response.json();
         setTrips(data);
       }
     } catch (error) {
-      console.error('Error fetching trips:', error);
+      // Silent fail for production - don't spam console
+      setTrips([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,7 +61,7 @@ export default function TripsPage() {
         resetForm();
       }
     } catch (error) {
-      console.error('Error saving trip:', error);
+      // Silent fail for production
     }
   };
 
@@ -81,7 +86,7 @@ export default function TripsPage() {
           await fetchTrips();
         }
       } catch (error) {
-        console.error('Error deleting trip:', error);
+        // Silent fail for production
       }
     }
   };
@@ -113,6 +118,17 @@ export default function TripsPage() {
     ];
     return countries.find(c => c.code === countryCode)?.name || countryCode;
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка поездок...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -161,7 +177,7 @@ export default function TripsPage() {
                       type="date"
                       value={formData.entryDate}
                       onChange={(e) => setFormData({ ...formData, entryDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -174,7 +190,7 @@ export default function TripsPage() {
                       type="date"
                       value={formData.exitDate}
                       onChange={(e) => setFormData({ ...formData, exitDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     />
                   </div>

@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [showFirstTrips, setShowFirstTrips] = useState(false);
   const [trips, setTrips] = useState<any[]>([]);
   const [rules, setRules] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Проверяем, первый ли раз пользователь зашёл
@@ -26,9 +27,19 @@ export default function DashboardPage() {
     }
 
     // Загружаем данные
-    fetchTrips();
-    fetchRules();
+    loadInitialData();
   }, []);
+
+  const loadInitialData = async () => {
+    try {
+      setIsLoading(true);
+      await Promise.all([fetchTrips(), fetchRules()]);
+    } catch (error) {
+      // Silent fail for production
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchTrips = async () => {
     try {
@@ -38,7 +49,8 @@ export default function DashboardPage() {
         setTrips(data);
       }
     } catch (error) {
-      console.error('Error fetching trips:', error);
+      // Silent fail for production - don't spam console
+      setTrips([]);
     }
   };
 
@@ -50,7 +62,8 @@ export default function DashboardPage() {
         setRules(data);
       }
     } catch (error) {
-      console.error('Error fetching rules:', error);
+      // Silent fail for production - don't spam console
+      setRules([]);
     }
   };
 
@@ -82,7 +95,8 @@ export default function DashboardPage() {
       localStorage.setItem('nomaddays_first_trips_added', 'true');
       setShowFirstTrips(false);
     } catch (error) {
-      console.error('Error saving trips:', error);
+      // Silent fail for production
+      setShowFirstTrips(false);
     }
   };
 
@@ -99,6 +113,17 @@ export default function DashboardPage() {
   }, 0);
 
   const activeRules = rules.filter(rule => rule.enabled).length;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
