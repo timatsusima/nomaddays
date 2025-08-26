@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       exitDate: trip.exitDate
     }));
 
-    const engineRules = rules.map(rule => {
+    const engineRules = rules.map((rule: any) => {
       let parsedParams: RuleParams;
       try {
         parsedParams = JSON.parse(rule.params);
