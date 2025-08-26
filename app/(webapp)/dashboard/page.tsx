@@ -6,8 +6,8 @@ import MetricsBar from '@/components/MetricsBar';
 import { Trip, RuleProfile } from '@/core/rules/types';
 
 const DashboardPage = () => {
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [rules, setRules] = useState<RuleProfile[]>([]);
+  const [trips] = useState<Trip[]>([]);
+  const [rules] = useState<RuleProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

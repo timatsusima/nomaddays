@@ -5,9 +5,23 @@ import Navigation from '@/components/Navigation';
 import { importTripsFromCSV, exportTripsToCSV, createCSVTemplate } from '@/lib/csv';
 import { Trip } from '@/core/rules/types';
 
+interface ImportResultSuccess {
+  success: true;
+  trips: Trip[];
+  errors: [];
+}
+
+interface ImportResultFailure {
+  success: false;
+  trips: Trip[];
+  errors: string[];
+}
+
+type ImportResult = ImportResultSuccess | ImportResultFailure;
+
 const ImportPage = () => {
   const [csvContent, setCsvContent] = useState('');
-  const [importResult, setImportResult] = useState<any>(null);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
 
   const handleImport = () => {
@@ -104,7 +118,7 @@ const ImportPage = () => {
             <div className="p-3 bg-red-50 text-red-800 rounded">
               <p className="font-medium">❌ Ошибки при импорте</p>
               <div className="text-sm mt-2 space-y-1">
-                {importResult.errors.map((error: string, index: number) => (
+                {importResult.errors.map((error, index) => (
                   <p key={index}>• {error}</p>
                 ))}
               </div>

@@ -9,20 +9,11 @@ interface RuleToggleProps {
   onUpdate: (updates: Partial<RuleProfile>) => void;
 }
 
-const RuleToggle = ({ rule, onToggle, onUpdate }: RuleToggleProps) => {
+const RuleToggle = ({ rule, onToggle }: RuleToggleProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggle = () => {
     onToggle(!rule.enabled);
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'OK': return 'text-green-600';
-      case 'WARNING': return 'text-yellow-600';
-      case 'RISK': return 'text-red-600';
-      default: return 'text-gray-600';
-    }
   };
 
   return (

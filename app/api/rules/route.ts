@@ -82,12 +82,12 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (params !== undefined) {
       updateData.params = JSON.stringify(params);
     }
     if (enabled !== undefined) {
-      updateData.enabled = enabled;
+      updateData.enabled = enabled as boolean;
     }
 
     const rule = await prisma.ruleProfile.update({

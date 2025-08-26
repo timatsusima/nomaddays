@@ -29,7 +29,7 @@ export function parseCSVRow(row: string): CSVRow | null {
       entryDate: columns[1],
       exitDate: columns[2]
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

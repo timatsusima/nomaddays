@@ -1,4 +1,4 @@
-import { createHmac, createHash } from 'crypto';
+import { createHmac } from 'crypto';
 
 export interface TelegramInitData {
   query_id: string;
@@ -63,7 +63,25 @@ export function validateInitData(initData: string): TelegramUser | null {
       return null;
     }
     
-    const user: TelegramUser = JSON.parse(userData);
+    const userRaw: unknown = JSON.parse(userData);
+    if (
+      !userRaw ||
+      typeof userRaw !== 'object' ||
+      !('id' in userRaw) ||
+      !('first_name' in userRaw)
+    ) {
+      return null;
+    }
+
+    const u = userRaw as { id: number; first_name: string; last_name?: string; username?: string; language_code?: string };
+
+    const user: TelegramUser = {
+      id: u.id,
+      firstName: u.first_name,
+      lastName: u.last_name,
+      username: u.username,
+      languageCode: u.language_code,
+    };
     
     return user;
   } catch (error) {
@@ -92,7 +110,7 @@ export function isTelegramWebApp(): boolean {
     return false;
   }
   
-  return 'Telegram' in window && 'WebApp' in (window as any).Telegram;
+  return 'Telegram' in window && 'WebApp' in (window as unknown as { Telegram?: { WebApp?: unknown } }).Telegram!;
 }
 
 /**
@@ -103,7 +121,7 @@ export function getTelegramUser(): TelegramUser | null {
     return null;
   }
   
-  const webApp = (window as any).Telegram.WebApp;
+  const webApp = (window as unknown as { Telegram: { WebApp: { initDataUnsafe?: { user?: { id: number; first_name: string; last_name?: string; username?: string; language_code?: string } } } } }).Telegram.WebApp;
   
   if (!webApp.initDataUnsafe?.user) {
     return null;
