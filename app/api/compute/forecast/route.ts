@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { RulesEngine } from '@/core/rules/engine';
-import { ForecastRequest } from '@/core/rules/types';
+import { ForecastRequest, RuleParams } from '@/core/rules/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,12 +36,31 @@ export async function POST(request: NextRequest) {
       exitDate: trip.exitDate
     }));
 
-    const engineRules = rules.map(rule => ({
-      id: rule.id,
-      key: rule.key,
-      params: rule.params, // Уже JSON строка
-      enabled: rule.enabled
-    }));
+    const engineRules = rules.map(rule => {
+      let parsedParams: RuleParams;
+      try {
+        parsedParams = JSON.parse(rule.params);
+      } catch {
+        // Если не удалось распарсить, используем пустые параметры
+        parsedParams = {
+          name: rule.key,
+          description: `Rule ${rule.key}`,
+          nDays: 0,
+          mDays: 0,
+          maxDaysPerYear: 0,
+          maxDaysOutside: 0,
+          calendarYear: false,
+          rolling12Months: false
+        };
+      }
+      
+      return {
+        id: rule.id,
+        key: rule.key,
+        params: parsedParams,
+        enabled: rule.enabled
+      };
+    });
 
     // Рассчитываем прогноз
     const forecast = await RulesEngine.calculateForecast(

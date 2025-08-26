@@ -31,10 +31,16 @@ const TripsPage = () => {
     setShowForm(true);
   };
 
-  const handleUpdateTrip = (updatedTrip: Trip) => {
-    setTrips(trips.map(t => t.id === updatedTrip.id ? updatedTrip : t));
-    setEditingTrip(null);
-    setShowForm(false);
+  const handleUpdateTrip = (updatedTrip: Omit<Trip, 'id'>) => {
+    if (editingTrip) {
+      const tripWithId: Trip = {
+        ...updatedTrip,
+        id: editingTrip.id
+      };
+      setTrips(trips.map(t => t.id === editingTrip.id ? tripWithId : t));
+      setEditingTrip(null);
+      setShowForm(false);
+    }
   };
 
   const handleDeleteTrip = (tripId: string) => {

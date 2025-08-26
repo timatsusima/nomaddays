@@ -58,10 +58,12 @@ export interface ForecastRequest {
 }
 
 export interface ForecastResult {
-  userId: string;
-  plannedTrip: DateRange;
+  canTravel: boolean;
   results: RuleResult[];
-  summary: {
+  plannedTrip: DateRange;
+  totalDays: number;
+  userId?: string;
+  summary?: {
     canTravel: boolean;
     totalUsedDays: number;
     totalAvailableDays: number;

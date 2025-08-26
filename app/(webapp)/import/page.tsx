@@ -31,10 +31,15 @@ const ImportPage = () => {
     }
 
     const result = importTripsFromCSV(csvContent);
-    setImportResult(result);
+    // Приводим тип к нужному интерфейсу
+    const typedResult: ImportResult = result.success 
+      ? { success: true, trips: result.trips, errors: [] }
+      : { success: false, trips: result.trips, errors: result.errors };
+    
+    setImportResult(typedResult);
 
-    if (result.success) {
-      setTrips(result.trips);
+    if (typedResult.success) {
+      setTrips(typedResult.trips);
     }
   };
 

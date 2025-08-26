@@ -1,216 +1,174 @@
 import { Trip, RuleProfile, RuleResult, ForecastRequest, ForecastResult, DateRange } from './types';
-import { DateWindowCalculator } from './date-windows';
+import { calculateSlidingWindow, calculateCalendarYear, calculateRolling12Months, calculateDaysInWindow, findNextRiskDate } from './date-windows';
 import dayjs from 'dayjs';
 
 export class RulesEngine {
   /**
-   * Основной метод для расчёта прогноза доступных дней
+   * Рассчитывает прогноз для планируемой поездки
    */
   static async calculateForecast(
     request: ForecastRequest,
     trips: Trip[],
-    activeRules: RuleProfile[]
+    rules: RuleProfile[]
   ): Promise<ForecastResult> {
-    const results: RuleResult[] = [];
+    const { plannedTrip } = request;
     
-    // Фильтруем только активные правила
-    const enabledRules = activeRules.filter(rule => rule.enabled);
-    
-    for (const rule of enabledRules) {
-      const result = this.calculateRuleResult(rule, trips, request.plannedTrip);
-      results.push(result);
+    // Конвертируем поездки в формат DateRange
+    const tripRanges: DateRange[] = trips.map(trip => ({
+      start: trip.entryDate,
+      end: trip.exitDate
+    }));
+
+    // Добавляем планируемую поездку
+    const allTrips = [...tripRanges, plannedTrip];
+
+    // Рассчитываем результат для каждого правила
+    const ruleResults: RuleResult[] = [];
+    let canTravel = true;
+
+    for (const rule of rules) {
+      if (!rule.enabled) continue;
+
+      const result = this.calculateRuleResult(rule, allTrips, plannedTrip);
+      ruleResults.push(result);
+
+      // Если хотя бы одно правило не соблюдается, поездка невозможна
+      if (!result.isCompliant) {
+        canTravel = false;
+      }
     }
-    
-    // Агрегируем результаты
-    const summary = this.aggregateResults(results, request.plannedTrip);
-    
+
     return {
-      userId: request.userId,
-      plannedTrip: request.plannedTrip,
-      results,
-      summary
+      canTravel,
+      results: ruleResults,
+      plannedTrip,
+      totalDays: this.calculateTotalDaysOutside(allTrips)
     };
   }
-  
+
   /**
    * Рассчитывает результат для конкретного правила
    */
   private static calculateRuleResult(
     rule: RuleProfile,
-    trips: Trip[],
+    trips: DateRange[],
     plannedTrip: DateRange
   ): RuleResult {
-    const params = JSON.parse(rule.params);
+    const { key, params } = rule;
+    
     let usedDays = 0;
     let availableDays = 0;
-    let isCompliant = true;
     let explanation = '';
     let severity: 'OK' | 'WARNING' | 'RISK' = 'OK';
-    
+
     if (params.nDays && params.mDays) {
       // Скользящее окно N из M дней
-      const windows = DateWindowCalculator.calculateSlidingWindow(
-        trips,
-        params.nDays,
-        params.mDays
-      );
+      const windows = calculateSlidingWindow(trips, params.nDays, params.mDays);
+      const currentWindow = windows[windows.length - 1];
       
-      // Находим окно, которое затрагивает планируемую поездку
-      const relevantWindow = windows.find(w => 
-        DateWindowCalculator.isDateInRange(plannedTrip.start, w) ||
-        DateWindowCalculator.isDateInRange(plannedTrip.end, w)
-      );
+      usedDays = currentWindow.daysInWindow;
+      availableDays = Math.max(0, params.nDays - usedDays);
       
-      if (relevantWindow) {
-        usedDays = relevantWindow.usedDays;
-        availableDays = relevantWindow.availableDays;
-        isCompliant = relevantWindow.isWithinLimit;
-        
+      if (usedDays >= params.nDays) {
+        severity = 'RISK';
+        explanation = `В окне ${params.mDays} дней использовано ${usedDays} из ${params.nDays} доступных дней`;
+      } else if (usedDays >= params.nDays * 0.8) {
+        severity = 'WARNING';
+        explanation = `В окне ${params.mDays} дней использовано ${usedDays} из ${params.nDays} доступных дней`;
+      } else {
         explanation = `В окне ${params.mDays} дней использовано ${usedDays} из ${params.nDays} доступных дней`;
       }
-    } else if (params.calendarYear) {
+    } else if (params.maxDaysPerYear && params.calendarYear) {
       // Календарный год
-      const currentYear = dayjs().year();
-      const yearCalc = DateWindowCalculator.calculateCalendarYear(trips, currentYear);
+      const currentYear = new Date().getFullYear();
+      const yearCalc = calculateCalendarYear(trips, currentYear);
       
-      usedDays = yearCalc.usedDays;
-      availableDays = yearCalc.availableDays;
-      isCompliant = yearCalc.isWithinLimit;
+      usedDays = yearCalc.daysInWindow;
+      availableDays = Math.max(0, params.maxDaysPerYear - usedDays);
       
-      explanation = `В ${currentYear} году использовано ${usedDays} дней`;
-    } else if (params.rolling12Months) {
+      if (usedDays >= params.maxDaysPerYear) {
+        severity = 'RISK';
+        explanation = `В ${currentYear} году использовано ${usedDays} из ${params.maxDaysPerYear} доступных дней`;
+      } else if (usedDays >= params.maxDaysPerYear * 0.8) {
+        severity = 'WARNING';
+        explanation = `В ${currentYear} году использовано ${usedDays} из ${params.maxDaysPerYear} доступных дней`;
+      } else {
+        explanation = `В ${currentYear} году использовано ${usedDays} из ${params.maxDaysPerYear} доступных дней`;
+      }
+    } else if (params.maxDaysOutside && params.rolling12Months) {
       // Скользящие 12 месяцев
-      const rollingCalc = DateWindowCalculator.calculateRolling12Months(trips);
+      const rollingCalc = calculateRolling12Months(trips);
+      const totalDays = rollingCalc.reduce((sum, month) => sum + month.daysInWindow, 0);
       
-      usedDays = rollingCalc.usedDays;
-      availableDays = rollingCalc.availableDays;
-      isCompliant = rollingCalc.isWithinLimit;
-      
-      explanation = `В скользящих 12 месяцах использовано ${usedDays} дней`;
-    } else if (params.maxDaysOutside) {
-      // Максимум дней вне страны
-      const totalDays = this.calculateTotalDaysOutside(trips);
       usedDays = totalDays;
-      availableDays = params.maxDaysOutside - totalDays;
-      isCompliant = totalDays <= params.maxDaysOutside;
+      availableDays = Math.max(0, params.maxDaysOutside - usedDays);
       
-      explanation = `Всего дней вне страны: ${totalDays} из ${params.maxDaysOutside} максимально допустимых`;
+      if (usedDays >= params.maxDaysOutside) {
+        severity = 'RISK';
+        explanation = `В скользящих 12 месяцах использовано ${usedDays} из ${params.maxDaysOutside} доступных дней`;
+      } else if (usedDays >= params.maxDaysOutside * 0.8) {
+        severity = 'WARNING';
+        explanation = `В скользящих 12 месяцах использовано ${usedDays} из ${params.maxDaysOutside} доступных дней`;
+      } else {
+        explanation = `В скользящих 12 месяцах использовано ${usedDays} из ${params.maxDaysOutside} доступных дней`;
+      }
     }
-    
-    // Определяем уровень риска
-    if (!isCompliant) {
-      severity = 'RISK';
-    } else if (availableDays < 30) {
-      severity = 'WARNING';
-    } else {
-      severity = 'OK';
-    }
-    
-    // Находим ближайшую дату риска
-    const riskDate = DateWindowCalculator.findNextRiskDate(trips, params);
-    
+
     return {
-      ruleKey: rule.key,
-      ruleName: params.name,
-      isCompliant,
+      ruleKey: key,
+      ruleName: params.name || key,
+      isCompliant: usedDays < (params.nDays || params.maxDaysPerYear || params.maxDaysOutside || 0),
       usedDays,
       availableDays,
-      riskDate,
-      explanation,
-      severity
+      severity,
+      explanation
     };
   }
-  
+
   /**
-   * Агрегирует результаты всех правил
+   * Агрегирует результаты нескольких правил
    */
-  private static aggregateResults(
-    results: RuleResult[],
-    plannedTrip: DateRange
-  ): ForecastResult['summary'] {
-    const totalUsedDays = results.reduce((sum, r) => sum + r.usedDays, 0);
-    const totalAvailableDays = results.reduce((sum, r) => sum + r.availableDays, 0);
-    
-    // Определяем общий уровень риска (fail-fast)
-    let overallSeverity: 'OK' | 'WARNING' | 'RISK' = 'OK';
-    if (results.some(r => r.severity === 'RISK')) {
-      overallSeverity = 'RISK';
-    } else if (results.some(r => r.severity === 'WARNING')) {
-      overallSeverity = 'WARNING';
-    }
-    
-    // Можно ли путешествовать (все правила соблюдены)
+  static aggregateResults(results: RuleResult[]): ForecastResult {
     const canTravel = results.every(r => r.isCompliant);
-    
-    // Находим ближайшую дату риска среди всех правил
-    const riskDates = results
-      .filter(r => r.riskDate)
-      .map(r => r.riskDate!)
-      .sort((a, b) => a.getTime() - b.getTime());
-    
-    const nextRiskDate = riskDates[0];
-    
+    const totalDays = results.reduce((sum, r) => sum + r.usedDays, 0);
+
     return {
       canTravel,
-      totalUsedDays,
-      totalAvailableDays,
-      nextRiskDate,
-      overallSeverity
+      results,
+      totalDays,
+      plannedTrip: { start: new Date(), end: new Date() } // Заглушка
     };
   }
-  
+
   /**
    * Рассчитывает общее количество дней вне страны
    */
-  private static calculateTotalDaysOutside(trips: Trip[]): number {
-    let totalDays = 0;
-    
-    for (const trip of trips) {
-      const entry = dayjs(trip.entryDate);
-      const exit = dayjs(trip.exitDate);
-      const days = exit.diff(entry, 'day') + 1; // +1 для включения дня въезда
-      totalDays += days;
-    }
-    
-    return totalDays;
+  static calculateTotalDaysOutside(trips: DateRange[]): number {
+    return trips.reduce((total, trip) => {
+      const days = dayjs(trip.end).diff(dayjs(trip.start), 'day') + 1;
+      return total + days;
+    }, 0);
   }
-  
+
   /**
-   * Проверяет, можно ли добавить планируемую поездку
+   * Проверяет, можно ли добавить поездку
    */
   static canAddTrip(
-    newTrip: Trip,
-    existingTrips: Trip[],
-    activeRules: RuleProfile[]
-  ): { canAdd: boolean; reason?: string } {
-    // Создаём временный список поездок с новой поездкой
-    const tempTrips = [...existingTrips, newTrip];
+    newTrip: DateRange,
+    existingTrips: DateRange[],
+    rules: RuleProfile[]
+  ): boolean {
+    const allTrips = [...existingTrips, newTrip];
     
-    // Создаём фиктивный запрос для проверки
-    const request: ForecastRequest = {
-      plannedTrip: {
-        start: new Date(),
-        end: new Date()
-      },
-      userId: 'temp'
-    };
-    
-    try {
-      const forecast = this.calculateForecast(request, tempTrips, activeRules);
+    for (const rule of rules) {
+      if (!rule.enabled) continue;
       
-      if (forecast.summary.canTravel) {
-        return { canAdd: true };
-      } else {
-        return { 
-          canAdd: false, 
-          reason: 'Добавление поездки нарушит лимиты правил' 
-        };
+      const result = this.calculateRuleResult(rule, allTrips, newTrip);
+      if (!result.isCompliant) {
+        return false;
       }
-    } catch (error) {
-      return { 
-        canAdd: false, 
-        reason: 'Ошибка при проверке правил' 
-      };
     }
+    
+    return true;
   }
 }
