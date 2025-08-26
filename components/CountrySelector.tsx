@@ -1,0 +1,210 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/Button';
+
+interface Country {
+  code: string;
+  name: string;
+  flag: string;
+}
+
+const COUNTRIES: Country[] = [
+  { code: 'DE', name: 'Германия', flag: '🇩🇪' },
+  { code: 'FR', name: 'Франция', flag: '🇫🇷' },
+  { code: 'IT', name: 'Италия', flag: '🇮🇹' },
+  { code: 'ES', name: 'Испания', flag: '🇪🇸' },
+  { code: 'NL', name: 'Нидерланды', flag: '🇳🇱' },
+  { code: 'BE', name: 'Бельгия', flag: '🇧🇪' },
+  { code: 'AT', name: 'Австрия', flag: '🇦🇹' },
+  { code: 'CH', name: 'Швейцария', flag: '🇨🇭' },
+  { code: 'PL', name: 'Польша', flag: '🇵🇱' },
+  { code: 'CZ', name: 'Чехия', flag: '🇨🇿' },
+  { code: 'HU', name: 'Венгрия', flag: '🇭🇺' },
+  { code: 'SK', name: 'Словакия', flag: '🇸🇰' },
+  { code: 'SI', name: 'Словения', flag: '🇸🇮' },
+  { code: 'HR', name: 'Хорватия', flag: '🇭🇷' },
+  { code: 'BG', name: 'Болгария', flag: '🇧🇬' },
+  { code: 'RO', name: 'Румыния', flag: '🇷🇴' },
+  { code: 'GR', name: 'Греция', flag: '🇬🇷' },
+  { code: 'PT', name: 'Португалия', flag: '🇵🇹' },
+  { code: 'IE', name: 'Ирландия', flag: '🇮🇪' },
+  { code: 'FI', name: 'Финляндия', flag: '🇫🇮' },
+  { code: 'SE', name: 'Швеция', flag: '🇸🇪' },
+  { code: 'DK', name: 'Дания', flag: '🇩🇰' },
+  { code: 'NO', name: 'Норвегия', flag: '🇳🇴' },
+  { code: 'IS', name: 'Исландия', flag: '🇮🇸' },
+  { code: 'EE', name: 'Эстония', flag: '🇪🇪' },
+  { code: 'LV', name: 'Латвия', flag: '🇱🇻' },
+  { code: 'LT', name: 'Литва', flag: '🇱🇹' },
+  { code: 'LU', name: 'Люксембург', flag: '🇱🇺' },
+  { code: 'MT', name: 'Мальта', flag: '🇲🇹' },
+  { code: 'CY', name: 'Кипр', flag: '🇨🇾' },
+  { code: 'US', name: 'США', flag: '🇺🇸' },
+  { code: 'CA', name: 'Канада', flag: '🇨🇦' },
+  { code: 'GB', name: 'Великобритания', flag: '🇬🇧' },
+  { code: 'AU', name: 'Австралия', flag: '🇦🇺' },
+  { code: 'NZ', name: 'Новая Зеландия', flag: '🇳🇿' },
+  { code: 'JP', name: 'Япония', flag: '🇯🇵' },
+  { code: 'KR', name: 'Южная Корея', flag: '🇰🇷' },
+  { code: 'SG', name: 'Сингапур', flag: '🇸🇬' },
+  { code: 'TH', name: 'Таиланд', flag: '🇹🇭' },
+  { code: 'VN', name: 'Вьетнам', flag: '🇻🇳' },
+  { code: 'MY', name: 'Малайзия', flag: '🇲🇾' },
+  { code: 'ID', name: 'Индонезия', flag: '🇮🇩' },
+  { code: 'PH', name: 'Филиппины', flag: '🇵🇭' },
+  { code: 'IN', name: 'Индия', flag: '🇮🇳' },
+  { code: 'BR', name: 'Бразилия', flag: '🇧🇷' },
+  { code: 'AR', name: 'Аргентина', flag: '🇦🇷' },
+  { code: 'MX', name: 'Мексика', flag: '🇲🇽' },
+  { code: 'CL', name: 'Чили', flag: '🇨🇱' },
+  { code: 'CO', name: 'Колумбия', flag: '🇨🇴' },
+  { code: 'PE', name: 'Перу', flag: '🇵🇪' },
+  { code: 'UY', name: 'Уругвай', flag: '🇺🇾' },
+  { code: 'ZA', name: 'ЮАР', flag: '🇿🇦' },
+  { code: 'EG', name: 'Египет', flag: '🇪🇬' },
+  { code: 'MA', name: 'Марокко', flag: '🇲🇦' },
+  { code: 'TR', name: 'Турция', flag: '🇹🇷' },
+  { code: 'IL', name: 'Израиль', flag: '🇮🇱' },
+  { code: 'AE', name: 'ОАЭ', flag: '🇦🇪' },
+  { code: 'SA', name: 'Саудовская Аравия', flag: '🇸🇦' },
+  { code: 'QA', name: 'Катар', flag: '🇶🇦' },
+  { code: 'KW', name: 'Кувейт', flag: '🇰🇼' },
+  { code: 'BH', name: 'Бахрейн', flag: '🇧🇭' },
+  { code: 'OM', name: 'Оман', flag: '🇴🇲' },
+  { code: 'JO', name: 'Иордания', flag: '🇯🇴' },
+  { code: 'LB', name: 'Ливан', flag: '🇱🇧' },
+  { code: 'SY', name: 'Сирия', flag: '🇸🇾' },
+  { code: 'IQ', name: 'Ирак', flag: '🇮🇶' },
+  { code: 'IR', name: 'Иран', flag: '🇮🇷' },
+  { code: 'AF', name: 'Афганистан', flag: '🇦🇫' },
+  { code: 'PK', name: 'Пакистан', flag: '🇵🇰' },
+  { code: 'BD', name: 'Бангладеш', flag: '🇧🇩' },
+  { code: 'LK', name: 'Шри-Ланка', flag: '🇱🇰' },
+  { code: 'NP', name: 'Непал', flag: '🇳🇵' },
+  { code: 'BT', name: 'Бутан', flag: '🇧🇹' },
+  { code: 'MM', name: 'Мьянма', flag: '🇲🇲' },
+  { code: 'LA', name: 'Лаос', flag: '🇱🇦' },
+  { code: 'KH', name: 'Камбоджа', flag: '🇰🇭' },
+  { code: 'MN', name: 'Монголия', flag: '🇲🇳' },
+  { code: 'KZ', name: 'Казахстан', flag: '🇰🇿' },
+  { code: 'UZ', name: 'Узбекистан', flag: '🇺🇿' },
+  { code: 'KG', name: 'Кыргызстан', flag: '🇰🇬' },
+  { code: 'TJ', name: 'Таджикистан', flag: '🇹🇯' },
+  { code: 'TM', name: 'Туркменистан', flag: '🇹🇲' },
+  { code: 'AZ', name: 'Азербайджан', flag: '🇦🇿' },
+  { code: 'GE', name: 'Грузия', flag: '🇬🇪' },
+  { code: 'AM', name: 'Армения', flag: '🇦🇲' },
+  { code: 'RU', name: 'Россия', flag: '🇷🇺' },
+  { code: 'BY', name: 'Беларусь', flag: '🇧🇾' },
+  { code: 'UA', name: 'Украина', flag: '🇺🇦' },
+  { code: 'MD', name: 'Молдова', flag: '🇲🇩' },
+  { code: 'RS', name: 'Сербия', flag: '🇷🇸' },
+  { code: 'ME', name: 'Черногория', flag: '🇲🇪' },
+  { code: 'BA', name: 'Босния и Герцеговина', flag: '🇧🇦' },
+  { code: 'MK', name: 'Северная Македония', flag: '🇲🇰' },
+  { code: 'AL', name: 'Албания', flag: '🇦🇱' },
+  { code: 'XK', name: 'Косово', flag: '🇽🇰' },
+  { code: 'AD', name: 'Андорра', flag: '🇦🇩' },
+  { code: 'LI', name: 'Лихтенштейн', flag: '🇱🇮' },
+  { code: 'MC', name: 'Монако', flag: '🇲🇨' },
+  { code: 'SM', name: 'Сан-Марино', flag: '🇸🇲' },
+  { code: 'VA', name: 'Ватикан', flag: '🇻🇦' },
+  { code: 'OUTSIDE', name: 'Вне РК', flag: '🌍' }
+];
+
+interface CountrySelectorProps {
+  value?: string;
+  onChange: (countryCode: string) => void;
+  placeholder?: string;
+}
+
+export function CountrySelector({ value, onChange, placeholder = 'Выберите страну' }: CountrySelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedCountry = COUNTRIES.find(c => c.code === value);
+  
+  const filteredCountries = COUNTRIES.filter(country =>
+    country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    country.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSelect = (country: Country) => {
+    onChange(country.code);
+    setIsOpen(false);
+    setSearchTerm('');
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 text-left bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+      >
+        {selectedCountry ? (
+          <div className="flex items-center space-x-3">
+            <span className="text-xl">{selectedCountry.flag}</span>
+            <span className="text-gray-900">{selectedCountry.name}</span>
+            <span className="text-gray-500 text-sm">({selectedCountry.code})</span>
+          </div>
+        ) : (
+          <span className="text-gray-500">{placeholder}</span>
+        )}
+        <svg
+          className={`ml-auto h-5 w-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden">
+          <div className="p-3 border-b border-gray-100">
+            <input
+              type="text"
+              placeholder="Поиск страны..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              autoFocus
+            />
+          </div>
+          
+          <div className="max-h-48 overflow-y-auto">
+            {filteredCountries.map((country) => (
+              <button
+                key={country.code}
+                type="button"
+                onClick={() => handleSelect(country)}
+                className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">{country.flag}</span>
+                  <span className="text-gray-900">{country.name}</span>
+                  <span className="text-gray-500 text-sm">({country.code})</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
