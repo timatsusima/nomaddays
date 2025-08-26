@@ -27,6 +27,8 @@ export default function RootLayout({
     <html lang="ru">
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
+        {/* Принудительное обновление CSS */}
+        <link rel="stylesheet" href="/globals.css?v=2" />
       </head>
       <body className={inter.className}>{children}</body>
     </html>
