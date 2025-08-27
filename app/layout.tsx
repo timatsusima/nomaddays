@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   title: 'NomadDays - Digital Nomad Travel Tracker',
   description:
     'Отслеживайте дни по странам и планируйте поездки с учётом правил резиденции',
+  other: {
+    'cache-control': 'no-cache, no-store, must-revalidate',
+    'pragma': 'no-cache',
+    'expires': '0'
+  }
 };
 
 export const viewport: Viewport = {
@@ -27,8 +32,6 @@ export default function RootLayout({
     <html lang="ru">
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
-        {/* Принудительное обновление CSS */}
-        <link rel="stylesheet" href="/globals.css?v=2" />
       </head>
       <body className={inter.className}>{children}</body>
     </html>
