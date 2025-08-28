@@ -34,11 +34,26 @@ export interface RuleParams {
   description: string;
 }
 
+// Тип для базы данных (Prisma)
+export interface RuleProfileDB {
+  id: string;
+  userId?: string;
+  key: string;
+  params: string; // JSON string в базе данных
+  enabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Тип для API (с распарсенными params)
 export interface RuleProfile {
   id: string;
+  userId?: string;
   key: string;
-  params: RuleParams;
+  params: RuleParams; // Объект RuleParams
   enabled: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface RuleResult {
@@ -78,4 +93,38 @@ export interface WindowCalculation {
   usedDays: number;
   availableDays: number;
   isWithinLimit: boolean;
+}
+
+// Утилиты для конвертации между типами
+export function parseRuleParams(paramsString: string): RuleParams {
+  try {
+    return JSON.parse(paramsString);
+  } catch (error) {
+    throw new Error(`Failed to parse rule params: ${error}`);
+  }
+}
+
+export function stringifyRuleParams(params: RuleParams): string {
+  return JSON.stringify(params);
+}
+
+export function convertDBToRuleProfile(dbRule: RuleProfileDB): RuleProfile {
+  return {
+    id: dbRule.id,
+    userId: dbRule.userId,
+    key: dbRule.key,
+    params: parseRuleParams(dbRule.params),
+    enabled: dbRule.enabled,
+    createdAt: dbRule.createdAt,
+    updatedAt: dbRule.updatedAt
+  };
+}
+
+export function convertRuleProfileToDB(rule: RuleProfile): Omit<RuleProfileDB, 'id' | 'createdAt' | 'updatedAt'> {
+  return {
+    userId: rule.userId,
+    key: rule.key,
+    params: stringifyRuleParams(rule.params),
+    enabled: rule.enabled
+  };
 }

@@ -1,4 +1,4 @@
-import { Trip, RuleProfile } from '../rules/types';
+import { Trip, RuleProfile, RuleParams, RuleProfileDB, parseRuleParams, stringifyRuleParams, convertDBToRuleProfile, convertRuleProfileToDB } from '../rules/types';
 
 describe('Rules Engine Tests', () => {
   const mockTrips: Trip[] = [
@@ -16,17 +16,30 @@ describe('Rules Engine Tests', () => {
     }
   ];
 
+  const mockRuleParams: RuleParams = {
+    name: 'Шенген 90/180',
+    description: '90 дней в любые 180 дней',
+    nDays: 90,
+    mDays: 180
+  };
+
   const mockRules: RuleProfile[] = [
     {
       id: '1',
       key: 'SCHENGEN_90_180',
-      params: JSON.stringify({
-        name: 'Шенген 90/180',
-        description: '90 дней в любые 180 дней',
-        nDays: 90,
-        mDays: 180
-      }),
+      params: mockRuleParams,
       enabled: true
+    }
+  ];
+
+  const mockRulesDB: RuleProfileDB[] = [
+    {
+      id: '1',
+      key: 'SCHENGEN_90_180',
+      params: JSON.stringify(mockRuleParams),
+      enabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
@@ -41,8 +54,8 @@ describe('Rules Engine Tests', () => {
       expect(mockRules[0].enabled).toBe(true);
     });
 
-    test('should parse JSON params correctly', () => {
-      const params = JSON.parse(mockRules[0].params);
+    test('should access rule params correctly', () => {
+      const params = mockRules[0].params;
       expect(params.name).toBe('Шенген 90/180');
       expect(params.nDays).toBe(90);
       expect(params.mDays).toBe(180);
@@ -79,10 +92,11 @@ describe('Rules Engine Tests', () => {
         expect(rule.id).toBeDefined();
         expect(rule.key).toBeDefined();
         expect(rule.params).toBeDefined();
-        expect(typeof rule.params).toBe('string');
+        expect(typeof rule.params).toBe('object');
         
-        // Проверяем, что params можно распарсить как JSON
-        expect(() => JSON.parse(rule.params)).not.toThrow();
+        // Проверяем, что params имеет правильную структуру
+        expect(rule.params.name).toBeDefined();
+        expect(rule.params.description).toBeDefined();
       });
     });
 
@@ -117,6 +131,53 @@ describe('Rules Engine Tests', () => {
       const ids = mockTrips.map(trip => trip.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(mockTrips.length);
+    });
+  });
+
+  describe('Type Conversion Tests', () => {
+    test('should parse rule params from string', () => {
+      const paramsString = JSON.stringify(mockRuleParams);
+      const parsed = parseRuleParams(paramsString);
+      
+      expect(parsed.name).toBe(mockRuleParams.name);
+      expect(parsed.nDays).toBe(mockRuleParams.nDays);
+      expect(parsed.mDays).toBe(mockRuleParams.mDays);
+    });
+
+    test('should stringify rule params to string', () => {
+      const stringified = stringifyRuleParams(mockRuleParams);
+      const parsed = JSON.parse(stringified);
+      
+      expect(parsed.name).toBe(mockRuleParams.name);
+      expect(parsed.nDays).toBe(mockRuleParams.nDays);
+      expect(parsed.mDays).toBe(mockRuleParams.mDays);
+    });
+
+    test('should convert DB rule to API rule', () => {
+      const dbRule = mockRulesDB[0];
+      const apiRule = convertDBToRuleProfile(dbRule);
+      
+      expect(apiRule.id).toBe(dbRule.id);
+      expect(apiRule.key).toBe(dbRule.key);
+      expect(apiRule.enabled).toBe(dbRule.enabled);
+      expect(apiRule.params.name).toBe(mockRuleParams.name);
+    });
+
+    test('should convert API rule to DB rule', () => {
+      const apiRule = mockRules[0];
+      const dbRule = convertRuleProfileToDB(apiRule);
+      
+      expect(dbRule.key).toBe(apiRule.key);
+      expect(dbRule.enabled).toBe(apiRule.enabled);
+      expect(typeof dbRule.params).toBe('string');
+      
+      // Проверяем, что params можно распарсить
+      const parsed = JSON.parse(dbRule.params);
+      expect(parsed.name).toBe(apiRule.params.name);
+    });
+
+    test('should handle invalid JSON in parseRuleParams', () => {
+      expect(() => parseRuleParams('invalid json')).toThrow('Failed to parse rule params');
     });
   });
 });
