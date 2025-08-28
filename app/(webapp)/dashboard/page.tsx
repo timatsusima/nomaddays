@@ -210,6 +210,17 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+          <Link href="/settings" className="card block hover:border-[var(--brand)] transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[var(--brand)] rounded-full flex items-center justify-center">
+                <span className="text-white text-lg">🤖</span>
+              </div>
+              <div>
+                <div className="font-semibold text-[var(--text)]">Настройки ИИ</div>
+                <div className="text-sm text-[var(--text-secondary)]">Добавить API‑ключ OpenAI</div>
+              </div>
+            </div>
+          </Link>
           <Link href="/planner" className="card block hover:border-[var(--brand)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--brand)] rounded-full flex items-center justify-center">

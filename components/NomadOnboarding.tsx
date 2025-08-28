@@ -15,6 +15,9 @@ export interface NomadOnboardingProps {
 export interface NomadData {
   citizenship: string;
   residenceCountry: string;
+  residencePermitType?: 'RVP' | 'VNZH' | 'NONE';
+  residencePermitStart?: string; // YYYY-MM-DD
+  residencePermitEnd?: string;   // YYYY-MM-DD
   trips: TripData[];
 }
 
@@ -28,6 +31,9 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
   const [step, setStep] = useState(1);
   const [citizenship, setCitizenship] = useState('');
   const [residenceCountry, setResidenceCountry] = useState('');
+  const [residencePermitType, setResidencePermitType] = useState<'RVP' | 'VNZH' | 'NONE'>('NONE');
+  const [residencePermitStart, setResidencePermitStart] = useState('');
+  const [residencePermitEnd, setResidencePermitEnd] = useState('');
   const [trips, setTrips] = useState<TripData[]>([]);
   const [currentTrip, setCurrentTrip] = useState<TripData>({
     countryCode: '',
@@ -71,6 +77,9 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
     onComplete({
       citizenship,
       residenceCountry,
+      residencePermitType,
+      residencePermitStart,
+      residencePermitEnd,
       trips
     });
   };
@@ -138,6 +147,40 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                 placeholder="Выберите страну ВНЖ/РВП"
               />
             </div>
+            <div>
+              <label className="form-label">Тип статуса (РВП/ВНЖ)</label>
+              <select
+                value={residencePermitType}
+                onChange={(e) => setResidencePermitType(e.target.value as any)}
+                className="form-input"
+              >
+                <option value="NONE">Нет статуса</option>
+                <option value="RVP">РВП</option>
+                <option value="VNZH">ВНЖ</option>
+              </select>
+            </div>
+            {residencePermitType !== 'NONE' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="form-label">Начало действия</label>
+                  <input
+                    type="date"
+                    value={residencePermitStart}
+                    onChange={(e) => setResidencePermitStart(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Окончание</label>
+                  <input
+                    type="date"
+                    value={residencePermitEnd}
+                    onChange={(e) => setResidencePermitEnd(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+            )}
             <div className="text-sm text-[var(--text-secondary)] text-center">
               Если у вас нет ВНЖ/РВП, выберите "Вне РК"
             </div>
