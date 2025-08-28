@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import PlannerCalendar from '@/components/PlannerCalendar';
 import { DateRange } from '@/core/rules/types';
+// LLM вычисления перенесены на серверную сторону
 
 interface ForecastRuleResult {
   ruleKey: string;

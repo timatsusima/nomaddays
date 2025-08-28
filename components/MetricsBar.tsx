@@ -1,6 +1,7 @@
 'use client';
 
 import { Trip, RuleProfile } from '@/core/rules/types';
+import { countryFlag } from '@/lib/countries';
 
 interface MetricsBarProps {
   trips: Trip[];
