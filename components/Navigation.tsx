@@ -15,18 +15,18 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-50">
-      <div className="flex justify-around items-center py-2">
+    <nav className="fixed bottom-0 left-0 right-0 bg-nomad-bg dark:bg-nomad-dark-bg border-t border-nomad-border dark:border-nomad-dark-border z-50 pb-safe-bottom">
+      <div className="flex justify-around items-center py-2 px-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+              className={`flex flex-col items-center p-2 rounded-lg transition-colors min-h-touch ${
                 isActive
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-nomad-brand/10 dark:bg-nomad-dark-brand/10 text-nomad-brand dark:text-nomad-dark-brand'
+                  : 'text-nomad-text-secondary dark:text-nomad-dark-text-secondary hover:text-nomad-text dark:hover:text-nomad-dark-text'
               }`}
             >
               <span className="text-xl mb-1">{item.icon}</span>

@@ -22,23 +22,23 @@ const MetricsBar = ({ trips, rules }: MetricsBarProps) => {
   return (
     <div className="grid grid-cols-2 gap-4 mb-4">
       <div className="card text-center">
-        <div className="text-2xl font-bold text-blue-600">{totalTrips}</div>
-        <div className="text-sm text-gray-600">Поездок</div>
+        <div className="text-2xl font-bold text-nomad-brand dark:text-nomad-dark-brand">{totalTrips}</div>
+        <div className="text-sm text-nomad-text-secondary dark:text-nomad-dark-text-secondary">Поездок</div>
       </div>
       
       <div className="card text-center">
-        <div className="text-2xl font-bold text-green-600">{totalDays}</div>
-        <div className="text-sm text-gray-600">Дней</div>
+        <div className="text-2xl font-bold text-nomad-green dark:text-nomad-dark-green">{totalDays}</div>
+        <div className="text-sm text-nomad-text-secondary dark:text-nomad-dark-text-secondary">Дней</div>
       </div>
       
       <div className="card text-center">
-        <div className="text-2xl font-bold text-purple-600">{activeRules.length}</div>
-        <div className="text-sm text-gray-600">Активных правил</div>
+        <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{activeRules.length}</div>
+        <div className="text-sm text-nomad-text-secondary dark:text-nomad-dark-text-secondary">Активных правил</div>
       </div>
       
       <div className="card text-center">
         <div className="text-2xl font-bold status-ok">✓</div>
-        <div className="text-sm text-gray-600">Статус</div>
+        <div className="text-sm text-nomad-text-secondary dark:text-nomad-dark-text-secondary">Статус</div>
       </div>
     </div>
   );
