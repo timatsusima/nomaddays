@@ -153,7 +153,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-12 px-3 text-left bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm overflow-hidden"
+        className="w-full h-10 px-3 text-left bg-white border border-gray-200 rounded-sm hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-colors text-sm overflow-hidden"
       >
         {selectedCountry ? (
           <div className="flex items-center space-x-2">
@@ -162,7 +162,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
             <span className="text-gray-500 text-xs leading-none">({selectedCountry.code})</span>
           </div>
         ) : (
-          <span className="text-gray-500 leading-none">{placeholder}</span>
+          <span className="text-gray-500 leading-none">Выберите страну</span>
         )}
         <svg
           className={`ml-auto h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -175,19 +175,19 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-xl max-h-64 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-lg max-h-56 overflow-hidden">
           <div className="sticky top-0 p-2 border-b border-gray-100 bg-gray-50">
             <input
               type="text"
               placeholder="Поиск страны..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-2 py-1.5 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="w-full px-2 py-1.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
               autoFocus
             />
           </div>
           
-          <div className="max-h-48 overflow-y-auto">
+          <div className="max-h-40 overflow-y-auto">
             {filteredCountries.length === 0 ? (
               <div className="p-3 text-center text-gray-500 text-sm">
                 Страна не найдена

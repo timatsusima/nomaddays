@@ -3,13 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --tg-theme-bg-color: #ffffff;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #2481cc;
-  --tg-theme-button-color: #2481cc;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #f1f1f1;
+  /* Notion-стиль цвета */
+  --notion-bg: #ffffff;
+  --notion-surface: #f7f6f3;
+  --notion-text: #37352f;
+  --notion-text-secondary: #787774;
+  --notion-border: #e9e8e6;
+  --notion-hover: #f1f1ef;
+  --notion-blue: #2eaadc;
+  --notion-blue-hover: #1ea7d4;
+  --notion-gray: #9b9a97;
+  --notion-gray-light: #f1f1ef;
 }
 
 * {
@@ -22,25 +26,26 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: var(--tg-theme-bg-color);
-  color: var(--tg-theme-text-color);
+  background-color: var(--notion-bg);
+  color: var(--notion-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  /* Не даём iOS самовольно масштабировать текст */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  line-height: 1.5;
 }
 
-/* Сбрасываем нативные стили форм на iOS/Safari/Telegram */
+/* Сброс нативных стилей форм */
 button, input, select, textarea {
   -webkit-appearance: none;
   appearance: none;
   background: none;
   border-radius: 0;
+  font-family: inherit;
 }
 
-/* Убираем авто-увеличение размеров инпутов на iOS при фокусе */
+/* Фикс для iOS */
 input, select, textarea {
   font-size: 16px;
 }
@@ -48,6 +53,7 @@ input, select, textarea {
 body {
   padding: 16px;
   padding-bottom: 100px;
+  background-color: var(--notion-surface);
 }
 
 a {
@@ -55,122 +61,92 @@ a {
   text-decoration: none;
 }
 
-/* Telegram WebApp стили */
-.tg-webapp {
-  background-color: var(--tg-theme-bg-color);
-  color: var(--tg-theme-text-color);
-}
-
-/* Навигация */
-.nav-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--tg-theme-bg-color);
-  border-top: 1px solid var(--tg-theme-secondary-bg-color);
-  padding: 12px 16px;
-  display: flex;
-  justify-content: space-around;
-  z-index: 1000;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.nav-item.active {
-  background-color: var(--tg-theme-secondary-bg-color);
-}
-
-.nav-item svg {
-  width: 24px;
-  height: 24px;
-  margin-bottom: 4px;
-}
-
-.nav-item span {
-  font-size: 12px;
-  color: var(--tg-theme-hint-color);
-}
-
-/* Кнопки */
+/* Notion-стиль кнопки */
 .btn {
-  background-color: var(--tg-theme-button-color);
-  color: var(--tg-theme-button-text-color);
+  background-color: var(--notion-blue);
+  color: white;
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 16px;
+  border-radius: 3px;
+  padding: 8px 16px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
 }
 
-.btn:active {
-  opacity: 0.8;
+.btn:hover {
+  background-color: var(--notion-blue-hover);
 }
 
 .btn-secondary {
-  background-color: var(--tg-theme-secondary-bg-color);
-  color: var(--tg-theme-text-color);
+  background-color: var(--notion-gray-light);
+  color: var(--notion-text);
+  border: 1px solid var(--notion-border);
 }
 
-.btn-danger {
-  background-color: #ff4444;
-  color: white;
+.btn-secondary:hover {
+  background-color: var(--notion-hover);
 }
 
-/* Карточки */
+/* Notion-стиль карточки */
 .card {
-  background-color: var(--tg-theme-bg-color);
-  border: 1px solid var(--tg-theme-secondary-bg-color);
-  border-radius: 12px;
+  background-color: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 3px;
   padding: 16px;
   margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: var(--notion-blue);
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
+  color: var(--notion-text);
 }
 
-/* Формы */
+/* Notion-стиль форм */
 .form-group {
   margin-bottom: 16px;
 }
 
 .form-label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 500;
-  color: var(--tg-theme-text-color);
+  color: var(--notion-text);
+  font-size: 14px;
 }
 
 .form-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid var(--tg-theme-secondary-bg-color);
-  border-radius: 8px;
-  font-size: 16px;
-  background-color: var(--tg-theme-bg-color);
-  color: var(--tg-theme-text-color);
+  padding: 8px 12px;
+  border: 1px solid var(--notion-border);
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: var(--notion-bg);
+  color: var(--notion-text);
+  transition: border-color 0.2s;
+  min-height: 36px;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--tg-theme-link-color);
+  border-color: var(--notion-blue);
+  box-shadow: 0 0 0 1px var(--notion-blue);
 }
 
-/* Статусы */
+/* Notion-стиль статусов */
 .status-ok {
-  color: #00c853;
+  color: #4caf50;
 }
 
 .status-warning {
@@ -181,7 +157,7 @@ a {
   color: #f44336;
 }
 
-/* Утилиты */
+/* Notion-стиль утилиты */
 .text-center {
   text-align: center;
 }
@@ -218,16 +194,67 @@ a {
   display: none;
 }
 
+/* Notion-стиль навигации */
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--notion-bg);
+  border-top: 1px solid var(--notion-border);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-around;
+  z-index: 1000;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+  min-width: 60px;
+}
+
+.nav-item.active {
+  background-color: var(--notion-hover);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 4px;
+  color: var(--notion-text-secondary);
+}
+
+.nav-item.active svg {
+  color: var(--notion-text);
+}
+
+.nav-item span {
+  font-size: 11px;
+  color: var(--notion-text-secondary);
+  font-weight: 500;
+}
+
+.nav-item.active span {
+  color: var(--notion-text);
+}
+
 /* Адаптивность */
 @media (max-width: 480px) {
   body {
     padding: 12px;
   }
+  
   .card {
     padding: 12px;
   }
+  
   .btn {
-    padding: 10px 20px;
-    font-size: 14px;
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }
