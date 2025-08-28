@@ -1,3 +1,7 @@
+// Trips Page v3.0 - FORCE REFRESH
+// Build: 2024-08-27 21:00
+// Cache: NO-CACHE-HEADERS
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -219,158 +223,168 @@ export default function TripsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="p-6 pb-20">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Поездки</h1>
-            <p className="text-gray-600">Управляйте своими поездками</p>
-          </div>
-
-          {/* Add Trip Button */}
-          <div className="mb-8">
-            <Button
-              onClick={() => setShowForm(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
-            >
-              Добавить поездку
-            </Button>
-          </div>
-
-          {/* Trip Form */}
-          {showForm && (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                {editingTrip ? 'Редактировать поездку' : 'Добавить поездку'}
-              </h2>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Страна
-                  </label>
-                  <CountrySelector
-                    value={formData.countryCode}
-                    onChange={(code) => setFormData({ ...formData, countryCode: code })}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Дата въезда
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.entryDate}
-                      onChange={(e) => setFormData({ ...formData, entryDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Дата выезда
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.exitDate}
-                      onChange={(e) => setFormData({ ...formData, exitDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button type="submit" className="flex-1">
-                    {editingTrip ? 'Обновить' : 'Добавить'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={resetForm}
-                    className="flex-1"
-                  >
-                    Отмена
-                  </Button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Trips List */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Список поездок</h2>
-            
-            {trips.length === 0 ? (
-              <div className="bg-white p-12 rounded-xl shadow-sm border border-gray-100 text-center">
-                <div className="text-gray-300 text-6xl mb-4">✈️</div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Нет поездок</h3>
-                <p className="text-gray-500 mb-6">Добавьте первую поездку, чтобы начать отслеживание</p>
-                <Button
-                  onClick={() => setShowForm(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Добавить поездку
-                </Button>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                {trips.map((trip) => (
-                  <div key={trip.id} className="p-6 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl">{getCountryFlag(trip.countryCode)}</div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {getCountryName(trip.countryCode)}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {new Date(trip.entryDate).toLocaleDateString()} - {new Date(trip.exitDate).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <div className="text-right">
-                          <div className="text-lg font-semibold text-gray-900">
-                            {Math.ceil((new Date(trip.exitDate).getTime() - new Date(trip.entryDate).getTime()) / (1000 * 60 * 60 * 24))}
-                          </div>
-                          <div className="text-sm text-gray-500">дней</div>
-                        </div>
-                        
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEdit(trip)}
-                            className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-colors"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          
-                          <button
-                            onClick={() => handleDelete(trip.id)}
-                            className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen bg-[var(--surface)]">
+      {/* Header */}
+      <div className="bg-[var(--bg)] border-b border-[var(--border)] p-4 mb-6">
+        <h1 className="text-2xl font-bold text-[var(--text)] mb-2">Поездки</h1>
+        <p className="text-[var(--text-secondary)]">Управляйте своими поездками</p>
       </div>
 
+      {/* Add Trip Button */}
+      <div className="px-4 mb-6">
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="btn w-full"
+        >
+          {showForm ? 'Скрыть форму' : 'Добавить поездку'}
+        </button>
+      </div>
+
+      {/* Add Trip Form */}
+      {showForm && (
+        <div className="card mx-4 mb-6">
+          <div className="card-title">Добавить поездку</div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="form-label">Страна</label>
+              <CountrySelector
+                value={formData.countryCode}
+                onChange={(countryCode) => setFormData({ ...formData, countryCode })}
+              />
+            </div>
+            <div>
+              <label className="form-label">Дата въезда</label>
+              <input
+                type="date"
+                value={formData.entryDate}
+                onChange={(e) => setFormData({ ...formData, entryDate: e.target.value })}
+                className="form-input"
+                required
+              />
+            </div>
+            <div>
+              <label className="form-label">Дата выезда</label>
+              <input
+                type="date"
+                value={formData.exitDate}
+                onChange={(e) => setFormData({ ...formData, exitDate: e.target.value })}
+                className="form-input"
+                required
+              />
+            </div>
+            <div className="flex gap-3">
+              <button type="submit" className="btn flex-1">
+                Добавить
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="btn-secondary flex-1"
+              >
+                Отмена
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Trips List */}
+      <div className="px-4">
+        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">Список поездок</h2>
+        {trips.length === 0 ? (
+          <div className="card text-center py-8">
+            <div className="text-4xl mb-4">✈️</div>
+            <div className="text-[var(--text-secondary)] mb-2">Нет поездок</div>
+            <div className="text-sm text-[var(--text-secondary)] mb-4">
+              Добавьте первую поездку, чтобы начать отслеживание
+            </div>
+            <button onClick={() => setShowForm(true)} className="btn">
+              Добавить поездку
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {trips.map((trip) => (
+              <div key={trip.id} className="card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold text-[var(--text)]">{trip.countryCode}</div>
+                    <div className="text-sm text-[var(--text-secondary)]">
+                      {new Date(trip.entryDate).toLocaleDateString()} - {new Date(trip.exitDate).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(trip)}
+                      className="text-[var(--brand)] hover:text-[var(--brand-hover)]"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(trip.id)}
+                      className="text-[var(--red)] hover:text-[var(--red)]"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Edit Modal */}
+      {editingTrip && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-[var(--bg)] rounded-2xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Редактировать поездку</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="form-label">Страна</label>
+                <CountrySelector
+                  value={editingTrip.countryCode}
+                  onChange={(countryCode) => setEditingTrip({ ...editingTrip, countryCode })}
+                />
+              </div>
+              <div>
+                <label className="form-label">Дата въезда</label>
+                <input
+                  type="date"
+                  value={editingTrip.entryDate}
+                  onChange={(e) => setEditingTrip({ ...editingTrip, entryDate: e.target.value })}
+                  className="form-input"
+                  required
+                />
+              </div>
+              <div>
+                <label className="form-label">Дата выезда</label>
+                <input
+                  type="date"
+                  value={editingTrip.exitDate}
+                  onChange={(e) => setEditingTrip({ ...editingTrip, exitDate: e.target.value })}
+                  className="form-input"
+                  required
+                />
+              </div>
+              <div className="flex gap-3">
+                <button type="submit" className="btn flex-1">
+                  Сохранить
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingTrip(null)}
+                  className="btn-secondary flex-1"
+                >
+                  Отмена
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation */}
       <Navigation />
     </div>
   );

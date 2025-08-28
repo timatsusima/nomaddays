@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 
 interface Country {
@@ -164,13 +164,23 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
         ) : (
           <span className="text-[var(--text-secondary)] leading-none">Выберите страну</span>
         )}
+        <svg
+          className={`w-5 h-5 text-[var(--text-secondary)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden">
           <div className="sticky top-0 p-2 border-b border-[var(--border)] bg-[var(--surface)]">
             <div className="flex items-center gap-2 bg-[var(--bg)] border border-[var(--border)] rounded-full px-3 h-11">
-              <svg className="w-5 h-5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"/></svg>
+              <svg className="w-5 h-5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+              </svg>
               <input
                 type="text"
                 placeholder="Поиск страны / региона"
@@ -181,12 +191,9 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
               />
             </div>
           </div>
-          
           <div className="max-h-72 overflow-y-auto">
             {filteredCountries.length === 0 ? (
-              <div className="p-4 text-center text-[var(--text-secondary)] text-sm">
-                Ничего не найдено
-              </div>
+              <div className="p-4 text-center text-[var(--text-secondary)] text-sm">Ничего не найдено</div>
             ) : (
               filteredCountries.map((country) => (
                 <button
