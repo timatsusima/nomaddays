@@ -147,6 +147,13 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                 placeholder="Выберите страну ВНЖ/РВП"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => setResidenceCountry('NONE')}
+              className="btn btn-secondary w-full"
+            >
+              Вне РК
+            </button>
             <div>
               <label className="form-label">Тип статуса (РВП/ВНЖ)</label>
               <select

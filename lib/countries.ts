@@ -41,4 +41,22 @@ export function resolveCountryName(code: string): string {
   return COUNTRY_MAP[normalized] ?? normalized;
 }
 
+export function countryFlag(code: string): string {
+  const cc = String(code || '').toUpperCase();
+  if (cc.length !== 2) return '🏳️';
+  const A = 65; // 'A'
+  const OFFSET = 127397; // regional indicator offset
+  const chars = cc.split('').map((c) => String.fromCodePoint(c.charCodeAt(0) - A + OFFSET));
+  return chars.join('');
+}
+
+export function countryColor(code: string): string {
+  // Deterministic pastel color per country using simple hash → HSL
+  const cc = String(code || '').toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < cc.length; i++) hash = (hash * 31 + cc.charCodeAt(i)) >>> 0;
+  const hue = hash % 360;
+  return `hsl(${hue} 70% 50%)`;
+}
+
 

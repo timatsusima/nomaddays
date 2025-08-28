@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import PlannerCalendar from '@/components/PlannerCalendar';
 import { DateRange } from '@/core/rules/types';
-import { computeForecastWithLLM } from '@/lib/llm';
+// LLM вычисления перенесены на серверную сторону
 
 interface ForecastRuleResult {
   ruleKey: string;
@@ -34,33 +34,14 @@ const PlannerPage = () => {
   const handleDateSelection = async (dates: DateRange) => {
     setSelectedDates(dates);
     try {
-      const apiKey = localStorage.getItem('nomaddays_openai_api_key');
-      if (apiKey) {
-        const citizenship = localStorage.getItem('nomaddays_citizenship') || '';
-        const residenceCountry = localStorage.getItem('nomaddays_residence') || '';
-        const residencePermitType = (localStorage.getItem('nomaddays_permit_type') as any) || 'NONE';
-        const residencePermitStart = localStorage.getItem('nomaddays_permit_start') || '';
-        const residencePermitEnd = localStorage.getItem('nomaddays_permit_end') || '';
-
-        const tripsRes = await fetch('/api/trips');
-        const trips = tripsRes.ok ? await tripsRes.json() : [];
-
-        const llmRes = await computeForecastWithLLM({
-          userProfile: { citizenship, residenceCountry, residencePermitType, residencePermitStart, residencePermitEnd },
-          trips: trips.map((t: any) => ({ countryCode: t.countryCode, entryDate: t.entryDate, exitDate: t.exitDate })),
-          plannedTrip: { start: dates.start.toISOString(), end: dates.end.toISOString() }
-        });
-        setForecast(llmRes);
-      } else {
-        const res = await fetch('/api/compute/forecast', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plannedTrip: dates, userId: 'test-user-123' })
-        });
-        if (!res.ok) throw new Error('Failed to compute forecast');
-        const data = await res.json();
-        setForecast(data);
-      }
+      const res = await fetch('/api/compute/forecast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plannedTrip: dates, userId: 'test-user-123' })
+      });
+      if (!res.ok) throw new Error('Failed to compute forecast');
+      const data = await res.json();
+      setForecast(data);
     } catch (e) {
       setForecast(null);
       alert('Не удалось рассчитать прогноз');
