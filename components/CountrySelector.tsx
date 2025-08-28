@@ -153,44 +153,39 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-10 px-3 text-left bg-white border border-gray-200 rounded-sm hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-colors text-sm overflow-hidden"
+        className="w-full h-11 px-4 text-left bg-[var(--bg)] border border-[var(--border)] rounded-lg hover:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-colors text-[15px] overflow-hidden"
       >
         {selectedCountry ? (
-          <div className="flex items-center space-x-2">
-            <span className="text-base leading-none">{selectedCountry.flag}</span>
-            <span className="text-gray-900 font-medium flex-1 truncate leading-none">{selectedCountry.name}</span>
-            <span className="text-gray-500 text-xs leading-none">({selectedCountry.code})</span>
+          <div className="flex items-center gap-3">
+            <span className="text-lg leading-none">{selectedCountry.flag}</span>
+            <span className="text-[var(--text)] font-semibold flex-1 truncate leading-none">{selectedCountry.name}</span>
+            <span className="text-[var(--text-secondary)] text-sm leading-none">({selectedCountry.code})</span>
           </div>
         ) : (
-          <span className="text-gray-500 leading-none">Выберите страну</span>
+          <span className="text-[var(--text-secondary)] leading-none">Выберите страну</span>
         )}
-        <svg
-          className={`ml-auto h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-lg max-h-56 overflow-hidden">
-          <div className="sticky top-0 p-2 border-b border-gray-100 bg-gray-50">
-            <input
-              type="text"
-              placeholder="Поиск страны..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-2 py-1.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
-              autoFocus
-            />
+        <div className="absolute z-50 w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden">
+          <div className="sticky top-0 p-2 border-b border-[var(--border)] bg-[var(--surface)]">
+            <div className="flex items-center gap-2 bg-[var(--bg)] border border-[var(--border)] rounded-full px-3 h-11">
+              <svg className="w-5 h-5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"/></svg>
+              <input
+                type="text"
+                placeholder="Поиск страны / региона"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 bg-transparent focus:outline-none text-[15px] text-[var(--text)] placeholder-[var(--text-secondary)]"
+                autoFocus
+              />
+            </div>
           </div>
           
-          <div className="max-h-40 overflow-y-auto">
+          <div className="max-h-72 overflow-y-auto">
             {filteredCountries.length === 0 ? (
-              <div className="p-3 text-center text-gray-500 text-sm">
-                Страна не найдена
+              <div className="p-4 text-center text-[var(--text-secondary)] text-sm">
+                Ничего не найдено
               </div>
             ) : (
               filteredCountries.map((country) => (
@@ -198,13 +193,13 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
                   key={country.code}
                   type="button"
                   onClick={() => handleSelect(country)}
-                  className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0 text-sm rounded-none"
+                  className="w-full px-4 py-3 text-left hover:bg-[var(--hover)] focus:bg-[var(--hover)] focus:outline-none transition-colors border-b border-[var(--border)] last:border-b-0"
                 >
-                  <div className="flex items-center space-x-2">
-                    <span className="text-base leading-none">{country.flag}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{country.flag}</span>
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-gray-900 leading-tight">{country.name}</div>
-                      <div className="text-xs text-gray-500">({country.code})</div>
+                      <div className="font-semibold text-[var(--text)] text-[16px]">{country.name}</div>
+                      <div className="text-[13px] text-[var(--text-secondary)]">{country.code}</div>
                     </div>
                   </div>
                 </button>
