@@ -91,6 +91,19 @@ export default function DashboardPage() {
     setShowOnboarding(false);
   };
 
+  const handleResetProfile = () => {
+    try {
+      const keys = [
+        'nomaddays_onboarding_completed',
+        'nomaddays_citizenship',
+        'nomaddays_residence'
+      ];
+      keys.forEach((k) => localStorage.removeItem(k));
+      setShowOnboarding(true);
+      alert('Профиль сброшен. Пройдите онбординг заново.');
+    } catch (_) {}
+  };
+
   const totalDays = trips.reduce((sum, trip) => {
     const entry = new Date(trip.entryDate);
     const exit = new Date(trip.exitDate);
@@ -163,6 +176,17 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+          <button onClick={handleResetProfile} className="card block w-full text-left hover:border-[var(--brand)] transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[var(--red)] rounded-full flex items-center justify-center">
+                <span className="text-white text-lg">↺</span>
+              </div>
+              <div>
+                <div className="font-semibold text-[var(--text)]">Сбросить профиль</div>
+                <div className="text-sm text-[var(--text-secondary)]">Очистить данные и начать заново</div>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 
