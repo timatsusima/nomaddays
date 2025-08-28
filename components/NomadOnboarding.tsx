@@ -232,7 +232,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
             <button
               onClick={handleNext}
               disabled={!canProceed()}
-              className="btn flex-1"
+              className={`btn flex-1 ${!canProceed() ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Далее
             </button>
@@ -240,7 +240,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
             <button
               onClick={handleComplete}
               disabled={!canComplete()}
-              className="btn flex-1"
+              className={`btn flex-1 ${!canComplete() ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Завершить
             </button>
@@ -251,7 +251,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
         <div className="text-center mt-4">
           <button
             onClick={onSkip}
-            className="text-[var(--text-secondary)] text-sm hover:text-[var(--text)]"
+            className="text-[var(--text-secondary)] text-sm hover:text-[var(--text)] transition-colors"
           >
             Пропустить настройку
           </button>
