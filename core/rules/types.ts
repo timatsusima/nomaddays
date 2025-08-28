@@ -1,6 +1,7 @@
 export interface DateRange {
   start: Date;
   end: Date;
+  countryCode?: string;
 }
 
 export interface Trip {
