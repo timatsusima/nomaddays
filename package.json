@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "test": "jest",
     "test:watch": "jest --watch",
+    "vercel-build": "prisma generate && prisma db push && tsx scripts/vercel-postinstall.ts && next build",
     "db:sqlite": "tsx scripts/switch-schema.ts sqlite",
     "db:postgresql": "tsx scripts/switch-schema.ts postgresql",
     "db:seed": "tsx scripts/seed.ts",
