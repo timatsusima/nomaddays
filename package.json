@@ -10,11 +10,14 @@
     "format": "prettier --write .",
     "test": "jest",
     "test:watch": "jest --watch",
+    "db:sqlite": "tsx scripts/switch-schema.ts sqlite",
+    "db:postgresql": "tsx scripts/switch-schema.ts postgresql",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:check": "tsx scripts/check-db.ts",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx scripts/seed.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

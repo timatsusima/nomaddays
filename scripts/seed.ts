@@ -5,160 +5,127 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Начинаем заполнение базы данных...');
 
-  // Создаём страны
-  const countries = [
-    { code: 'KZ', name: 'Казахстан' },
-    { code: 'DE', name: 'Германия' },
-    { code: 'FR', name: 'Франция' },
-    { code: 'IT', name: 'Италия' },
-    { code: 'ES', name: 'Испания' },
-    { code: 'NL', name: 'Нидерланды' },
-    { code: 'BE', name: 'Бельгия' },
-    { code: 'AT', name: 'Австрия' },
-    { code: 'CH', name: 'Швейцария' },
-    { code: 'US', name: 'Соединённые Штаты' },
-    { code: 'GB', name: 'Великобритания' },
-    { code: 'AU', name: 'Австралия' },
-    { code: 'CA', name: 'Канада' },
-    { code: 'JP', name: 'Япония' },
-    { code: 'SG', name: 'Сингапур' },
-    { code: 'TH', name: 'Таиланд' },
-    { code: 'VN', name: 'Вьетнам' },
-    { code: 'ID', name: 'Индонезия' },
-    { code: 'MY', name: 'Малайзия' },
-    { code: 'PH', name: 'Филиппины' }
-  ];
+  try {
+    // Очищаем существующие данные
+    console.log('🧹 Очищаем существующие данные...');
+    await prisma.trip.deleteMany();
+    await prisma.ruleProfile.deleteMany();
+    await prisma.setting.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.country.deleteMany();
 
-  console.log('📍 Создаём страны...');
-  for (const country of countries) {
-    await prisma.country.upsert({
-      where: { code: country.code },
-      update: { name: country.name },
-      create: country
-    });
-  }
+    // Создаём страны
+    console.log('📍 Создаём страны...');
+    const countries = await Promise.all([
+      prisma.country.create({ data: { code: 'KZ', name: 'Казахстан' } }),
+      prisma.country.create({ data: { code: 'DE', name: 'Германия' } }),
+      prisma.country.create({ data: { code: 'FR', name: 'Франция' } }),
+      prisma.country.create({ data: { code: 'IT', name: 'Италия' } }),
+      prisma.country.create({ data: { code: 'ES', name: 'Испания' } }),
+      prisma.country.create({ data: { code: 'NL', name: 'Нидерланды' } }),
+      prisma.country.create({ data: { code: 'BE', name: 'Бельгия' } }),
+      prisma.country.create({ data: { code: 'AT', name: 'Австрия' } }),
+      prisma.country.create({ data: { code: 'CH', name: 'Швейцария' } }),
+      prisma.country.create({ data: { code: 'PL', name: 'Польша' } }),
+      prisma.country.create({ data: { code: 'CZ', name: 'Чехия' } }),
+      prisma.country.create({ data: { code: 'HU', name: 'Венгрия' } }),
+      prisma.country.create({ data: { code: 'SK', name: 'Словакия' } }),
+      prisma.country.create({ data: { code: 'PT', name: 'Португалия' } }),
+      prisma.country.create({ data: { code: 'IE', name: 'Ирландия' } }),
+      prisma.country.create({ data: { code: 'FI', name: 'Финляндия' } }),
+      prisma.country.create({ data: { code: 'SE', name: 'Швеция' } }),
+      prisma.country.create({ data: { code: 'DK', name: 'Дания' } }),
+      prisma.country.create({ data: { code: 'NO', name: 'Норвегия' } }),
+      prisma.country.create({ data: { code: 'US', name: 'США' } }),
+    ]);
 
-  // Создаём тестового пользователя
-  console.log('👤 Создаём тестового пользователя...');
-  const testUser = await prisma.user.upsert({
-    where: { tgUserId: '123456789' },
-    update: {},
-    create: {
-      tgUserId: '123456789'
-    }
-  });
-
-  // Создаём настройки пользователя
-  console.log('⚙️ Создаём настройки пользователя...');
-  await prisma.setting.upsert({
-    where: { userId: testUser.id },
-    update: {},
-    create: {
-      userId: testUser.id,
-      timezone: 'Asia/Almaty',
-      locale: 'ru'
-    }
-  });
-
-  // Создаём правила по умолчанию
-  console.log('📋 Создаём правила по умолчанию...');
-  const defaultRules = [
-    {
-      key: 'KZ_RESIDENCY_TEST',
-      params: {
-        name: 'Тест резиденции РК',
-        description: 'Максимум дней вне Казахстана для сохранения налогового резидентства',
-        maxDaysOutside: 183,
-        calendarYear: true,
-        rolling12Months: false
-      },
-      enabled: true
-    },
-    {
-      key: 'SCHENGEN_90_180',
-      params: {
-        name: 'Шенген 90/180',
-        description: '90 дней в любые 180 дней в Шенгенской зоне',
-        nDays: 90,
-        mDays: 180,
-        calendarYear: false,
-        rolling12Months: false
-      },
-      enabled: true
-    },
-    {
-      key: 'GENERIC_183_365',
-      params: {
-        name: 'Общее правило 183 дня',
-        description: '183 дня в любые 365 дней (скользящий год)',
-        nDays: 183,
-        mDays: 365,
-        calendarYear: false,
-        rolling12Months: false
-      },
-      enabled: false
-    }
-  ];
-
-  for (const rule of defaultRules) {
-    await prisma.ruleProfile.upsert({
-      where: {
-        userId_key: {
-          userId: testUser.id,
-          key: rule.key
-        }
-      },
-      update: {
-        params: JSON.stringify(rule.params),
-        enabled: rule.enabled
-      },
-      create: {
-        userId: testUser.id,
-        key: rule.key,
-        params: JSON.stringify(rule.params),
-        enabled: rule.enabled
-      }
-    });
-  }
-
-  // Создаём тестовые поездки
-  console.log('✈️ Создаём тестовые поездки...');
-  const testTrips = [
-    {
-      countryCode: 'DE',
-      entryDate: new Date('2024-01-15'),
-      exitDate: new Date('2024-01-30')
-    },
-    {
-      countryCode: 'FR',
-      entryDate: new Date('2024-02-10'),
-      exitDate: new Date('2024-02-25')
-    },
-    {
-      countryCode: 'IT',
-      entryDate: new Date('2024-03-05'),
-      exitDate: new Date('2024-03-20')
-    }
-  ];
-
-  for (const trip of testTrips) {
-    await prisma.trip.create({
+    // Создаём тестового пользователя
+    console.log('👤 Создаём тестового пользователя...');
+    const user = await prisma.user.create({
       data: {
-        userId: testUser.id,
-        countryCode: trip.countryCode,
-        entryDate: trip.entryDate,
-        exitDate: trip.exitDate
-      }
+        tgUserId: 'test-user-123',
+      },
     });
-  }
 
-  console.log('✅ База данных успешно заполнена!');
-  console.log(`📊 Создано: ${countries.length} стран, 1 пользователь, ${defaultRules.length} правил, ${testTrips.length} поездок`);
+    // Создаём настройки пользователя
+    console.log('⚙️ Создаём настройки пользователя...');
+    await prisma.setting.create({
+      data: {
+        userId: user.id,
+        timezone: 'Asia/Almaty',
+        locale: 'ru',
+      },
+    });
+
+    // Создаём правила по умолчанию
+    console.log('📋 Создаём правила по умолчанию...');
+    await Promise.all([
+      prisma.ruleProfile.create({
+        data: {
+          userId: user.id,
+          key: 'SCHENGEN_90_180',
+          params: JSON.stringify({ enabled: true, daysIn: 90, daysOut: 180 }),
+          enabled: true,
+        },
+      }),
+      prisma.ruleProfile.create({
+        data: {
+          userId: user.id,
+          key: 'KZ_RESIDENCY_TEST',
+          params: JSON.stringify({ enabled: true, daysInYear: 183 }),
+          enabled: true,
+        },
+      }),
+      prisma.ruleProfile.create({
+        data: {
+          userId: user.id,
+          key: 'GENERIC_183_365',
+          params: JSON.stringify({ enabled: true, daysInYear: 183 }),
+          enabled: true,
+        },
+      }),
+    ]);
+
+    // Создаём тестовые поездки
+    console.log('✈️ Создаём тестовые поездки...');
+    await Promise.all([
+      prisma.trip.create({
+        data: {
+          userId: user.id,
+          countryCode: 'DE',
+          entryDate: new Date('2024-01-15'),
+          exitDate: new Date('2024-02-15'),
+        },
+      }),
+      prisma.trip.create({
+        data: {
+          userId: user.id,
+          countryCode: 'FR',
+          entryDate: new Date('2024-03-01'),
+          exitDate: new Date('2024-03-31'),
+        },
+      }),
+      prisma.trip.create({
+        data: {
+          userId: user.id,
+          countryCode: 'IT',
+          entryDate: new Date('2024-05-01'),
+          exitDate: new Date('2024-05-15'),
+        },
+      }),
+    ]);
+
+    console.log('✅ База данных успешно заполнена!');
+    console.log(`📊 Создано: ${countries.length} стран, 1 пользователь, 3 правил, 3 поездок`);
+  } catch (error) {
+    console.error('❌ Ошибка при заполнении базы данных:', error);
+    throw error;
+  }
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Ошибка при заполнении базы данных:', e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {
