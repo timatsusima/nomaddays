@@ -12,6 +12,7 @@ export interface CountrySelectorProps {
   value: string;
   onChange: (countryCode: string) => void;
   placeholder?: string;
+  variant?: 'select' | 'list';
 }
 
 const COUNTRIES: Country[] = [
@@ -52,7 +53,35 @@ const COUNTRIES: Country[] = [
   { code: 'GB', name: 'Великобритания', flag: '🇬🇧' },
 ];
 
-export function CountrySelector({ value, onChange, placeholder = 'Выберите страну' }: CountrySelectorProps) {
+export function CountrySelector({ value, onChange, placeholder = 'Выберите страну', variant = 'select' }: CountrySelectorProps) {
+  if (variant === 'list') {
+    return (
+      <div className="space-y-3">
+        {COUNTRIES.map((country) => {
+          const isActive = value === country.code;
+          return (
+            <button
+              key={country.code}
+              type="button"
+              onClick={() => onChange(country.code)}
+              className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl border transition-colors ${
+                isActive
+                  ? 'border-[var(--brand)] bg-[var(--hover)]'
+                  : 'border-[var(--border)] hover:bg-[var(--hover)]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{country.flag}</span>
+                <span className="text-[var(--text)] text-lg">{country.name}</span>
+              </div>
+              {isActive && <span className="text-[var(--brand)] text-2xl">✓</span>}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <select

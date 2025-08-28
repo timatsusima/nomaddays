@@ -119,6 +119,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                 value={citizenship}
                 onChange={setCitizenship}
                 placeholder="Выберите страну гражданства"
+                variant="list"
               />
             </div>
             <div className="text-sm text-[var(--text-secondary)] text-center">
@@ -136,6 +137,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                 value={residenceCountry}
                 onChange={setResidenceCountry}
                 placeholder="Выберите страну ВНЖ/РВП"
+                variant="list"
               />
             </div>
             <div className="text-sm text-[var(--text-secondary)] text-center">
