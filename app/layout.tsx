@@ -30,11 +30,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
+    <html lang="ru" className="h-full">
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Dark mode detection
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              document.documentElement.classList.add('dark')
+            } else {
+              document.documentElement.classList.remove('dark')
+            }
+          `
+        }} />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} h-full`}>
         {children}
         <Analytics />
       </body>
