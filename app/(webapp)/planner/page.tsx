@@ -32,21 +32,19 @@ const PlannerPage = () => {
 
   const handleDateSelection = async (dates: DateRange) => {
     setSelectedDates(dates);
-    // TODO: Вызвать API для расчёта прогноза
-    setForecast({
-      canTravel: true,
-      results: [
-        {
-          ruleKey: 'SCHENGEN_90_180',
-          ruleName: 'Шенген 90/180',
-          isCompliant: true,
-          usedDays: 45,
-          availableDays: 45,
-          severity: 'OK',
-          explanation: 'В окне 180 дней использовано 45 из 90 доступных дней',
-        },
-      ],
-    });
+    try {
+      const res = await fetch('/api/compute/forecast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plannedTrip: dates, userId: 'test-user-123' })
+      });
+      if (!res.ok) throw new Error('Failed to compute forecast');
+      const data = await res.json();
+      setForecast(data);
+    } catch (e) {
+      setForecast(null);
+      alert('Не удалось рассчитать прогноз');
+    }
   };
 
   if (loading) {

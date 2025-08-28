@@ -61,7 +61,27 @@ export class RulesEngine {
     let explanation = '';
     let severity: 'OK' | 'WARNING' | 'RISK' = 'OK';
 
-    if (params.nDays && params.mDays) {
+    if (params.minDaysInCountry && params.countryCode) {
+      // Требование минимального нахождения в конкретной стране за календарный год
+      const currentYear = new Date().getFullYear();
+      // Считаем только дни в нужной стране: предполагаем, что входные trips — все поездки,
+      // где страна кодируется в расширенном источнике; для простоты считаем общие дни,
+      // если планируемое правило ориентируется на общие дни пребывания в стране,
+      // нужно иметь фильтрацию по стране в Trips (в дальнейшем можно хранить countryCode в DateRange).
+      // Здесь приближение: используем все дни пользователя в году как прокси, так как текущая модель DateRange не несёт country.
+      const yearCalc = calculateCalendarYear(trips, currentYear);
+      usedDays = yearCalc.daysInWindow;
+      availableDays = Math.max(0, (params.minDaysInCountry || 0) - usedDays);
+      if (usedDays < (params.minDaysInCountry || 0)) {
+        severity = 'RISK';
+        explanation = `За ${currentYear} год в стране требуется минимум ${params.minDaysInCountry} дней. Сейчас: ${usedDays}.`;
+      } else if (usedDays < (params.minDaysInCountry || 0) + 20) {
+        severity = 'WARNING';
+        explanation = `Достигнут минимум ${usedDays}/${params.minDaysInCountry} дней пребывания за ${currentYear} год.`;
+      } else {
+        explanation = `Выполнен минимум ${usedDays}/${params.minDaysInCountry} дней пребывания за ${currentYear} год.`;
+      }
+    } else if (params.nDays && params.mDays) {
       // Скользящее окно N из M дней
       const windows = calculateSlidingWindow(trips, params.nDays, params.mDays);
       const currentWindow = windows[windows.length - 1];
