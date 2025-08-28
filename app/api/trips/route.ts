@@ -83,6 +83,18 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Проверяем, существует ли поездка
+    const existingTrip = await prisma.trip.findUnique({
+      where: { id }
+    });
+
+    if (!existingTrip) {
+      return NextResponse.json(
+        { error: 'Trip not found' },
+        { status: 404 }
+      );
+    }
+
     const trip = await prisma.trip.update({
       where: { id },
       data: {
@@ -105,13 +117,24 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/trips - удалить поездку
 export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const { id } = await request.json();
 
     if (!id) {
       return NextResponse.json(
-        { error: 'trip id is required' },
+        { error: 'Trip id is required' },
         { status: 400 }
+      );
+    }
+
+    // Проверяем, существует ли поездка
+    const existingTrip = await prisma.trip.findUnique({
+      where: { id }
+    });
+
+    if (!existingTrip) {
+      return NextResponse.json(
+        { error: 'Trip not found' },
+        { status: 404 }
       );
     }
 

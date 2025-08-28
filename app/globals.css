@@ -156,6 +156,18 @@ body {
   box-shadow: 0 0 0 2px var(--brand);
 }
 
+/* Select styles */
+select {
+  background-image: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
 /* Status colors */
 .status-ok { color: var(--green); }
 .status-warning { color: #ff9800; }
