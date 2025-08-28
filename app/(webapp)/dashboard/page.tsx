@@ -144,7 +144,7 @@ export default function DashboardPage() {
           <Link href="/trips" className="card block hover:border-[var(--brand)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--brand)] rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">+</span>
+                <span className="text-white text-lg">✈️</span>
               </div>
               <div>
                 <div className="font-semibold text-[var(--text)]">Добавить поездку</div>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
           <Link href="/planner" className="card block hover:border-[var(--brand)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--brand)] rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">📅</span>
+                <span className="text-white text-lg">🗓️</span>
               </div>
               <div>
                 <div className="font-semibold text-[var(--text)]">Спланировать поездку</div>
