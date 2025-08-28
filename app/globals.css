@@ -41,7 +41,7 @@
 html, body {
   background-color: var(--surface);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', sans-serif;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   line-height: 1.5;
@@ -180,6 +180,11 @@ select::-ms-expand {
 .status-ok { color: var(--green); }
 .status-warning { color: #ff9800; }
 .status-risk { color: var(--red); }
+
+/* Emoji/Flags rendering */
+.emoji {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', sans-serif;
+}
 
 /* Responsive */
 @media (max-width: 480px) {

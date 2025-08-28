@@ -164,6 +164,18 @@ export default function DashboardPage() {
       .map(([month, data]) => ({ month, data }));
   }, [trips]);
 
+  // Итог по месяцам: сумма дней и доминирующая страна для цвета
+  const monthlyTotals = useMemo(() => {
+    const items = monthlyByCountry.map(({ month, data }) => {
+      const entries = Object.entries(data);
+      const total = entries.reduce((s, [, v]) => s + v, 0);
+      const dominant = entries.sort((a, b) => b[1] - a[1])[0]?.[0] || 'ZZ';
+      return { month, total, code: dominant };
+    });
+    const max = Math.max(1, ...items.map((i) => i.total));
+    return { items, max };
+  }, [monthlyByCountry]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center">
@@ -208,25 +220,24 @@ export default function DashboardPage() {
       <div className="mb-6 px-4">
         <h2 className="text-lg font-semibold text-[var(--text)] mb-4">Дни по странам (12 мес.)</h2>
         {/* Простая «стековая» диаграмма по месяцам */}
-        {monthlyByCountry.length > 0 && (
+        {monthlyTotals.items.length > 0 && (
           <div className="card mb-4 p-4 overflow-x-auto">
-            <div className="flex items-end gap-2 min-w-[600px]">
-              {monthlyByCountry.map(({ month, data }) => {
-                const total = Object.values(data).reduce((s, v) => s + v, 0) || 1;
-                let yOffset = 96; // рисуем стек снизу вверх
+            <div className="flex items-end gap-3 min-w-[600px]">
+              {monthlyTotals.items.map(({ month, total, code }) => {
+                const height = Math.max(8, Math.round((total / monthlyTotals.max) * 96));
+                const label = month;
                 return (
-                  <div key={month} className="flex flex-col items-center w-10">
-                    <div className="relative w-full h-24 border border-[var(--border)] rounded overflow-hidden">
-                      {Object.entries(data)
-                        .sort((a, b) => a[1] - b[1])
-                        .map(([code, days]) => {
-                          const height = Math.max(2, Math.round((days / total) * 96));
-                          yOffset -= height;
-                          const style = { backgroundColor: countryColor(code), height: `${height}px`, top: `${yOffset}px`, borderTop: '1px solid rgba(0,0,0,.1)' } as React.CSSProperties;
-                          return <div key={code} className="absolute left-0 right-0" style={style} title={`${countryFlag(code)} ${code}: ${days}`} />;
-                        })}
+                  <div key={month} className="flex flex-col items-center w-12">
+                    <div className="relative w-full h-24">
+                      <div
+                        className="absolute bottom-0 left-0 right-0 rounded-md flex items-center justify-center"
+                        style={{ height: `${height}px`, backgroundColor: countryColor(code) }}
+                        title={`${code}: ${total} дней`}
+                      >
+                        <span className="text-[10px] text-white font-semibold">{total}</span>
+                      </div>
                     </div>
-                    <div className="text-[10px] text-[var(--text-secondary)] mt-1">{month}</div>
+                    <div className="text-[10px] text-[var(--text-secondary)] mt-1">{label}</div>
                   </div>
                 );
               })}
@@ -240,7 +251,7 @@ export default function DashboardPage() {
             {countryDaysLast12m.map((row) => (
               <div key={row.code} className="card flex items-center justify-between py-3">
                 <div className="font-semibold text-[var(--text)] flex items-center gap-2">
-                  <span>{countryFlag(row.code)}</span>
+                  <span aria-hidden className="emoji">{countryFlag(row.code)}</span>
                   <span>{row.name} ({row.code})</span>
                 </div>
                 <div className="font-bold" style={{ color: countryColor(row.code) }}>{row.days}</div>
@@ -312,7 +323,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-semibold text-[var(--text)] flex items-center gap-2">
-                      <span>{countryFlag(trip.countryCode)}</span>
+                      <span aria-hidden className="emoji">{countryFlag(trip.countryCode)}</span>
                       <span>{trip.countryCode}</span>
                     </div>
                     <div className="text-sm text-[var(--text-secondary)]">

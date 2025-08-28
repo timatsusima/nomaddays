@@ -53,6 +53,18 @@ export function countryFlag(code: string): string {
 export function countryColor(code: string): string {
   // Deterministic, higher-contrast color per country (works on dark bg)
   const cc = String(code || '').toUpperCase();
+  // Preset palette for common countries to ensure strong contrast
+  const presets: Record<string, string> = {
+    TH: '#00DFA2',
+    RU: '#FF6B6B',
+    KZ: '#2AA1FF',
+    DE: '#F7B500',
+    FR: '#3366FF',
+    IT: '#2ECC71',
+    ES: '#F39C12',
+    US: '#8E44AD'
+  };
+  if (presets[cc]) return presets[cc];
   let hash = 0;
   for (let i = 0; i < cc.length; i++) hash = (hash * 31 + cc.charCodeAt(i)) >>> 0;
   const hue = hash % 360;
