@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { resolveCountryName } from '@/lib/countries';
 
 // Временный userId для тестирования
 const TEST_USER_ID = 'test-user-123';
@@ -59,21 +60,13 @@ export async function POST(request: NextRequest) {
     const userId = TEST_USER_ID;
     console.log('Using userId:', userId);
 
-    // Проверяем, существует ли страна
-    const country = await prisma.country.findUnique({
-      where: { code: countryCode }
-    });
-
+    // Убеждаемся, что страна существует, если нет — создаём
+    const normalizedCode = String(countryCode).toUpperCase();
+    let country = await prisma.country.findUnique({ where: { code: normalizedCode } });
     if (!country) {
-      console.log('Country not found:', countryCode);
-      return NextResponse.json(
-        { 
-          error: 'Country not found',
-          countryCode,
-          availableCountries: await prisma.country.findMany({ select: { code: true, name: true } })
-        },
-        { status: 400 }
-      );
+      const name = resolveCountryName(normalizedCode);
+      country = await prisma.country.create({ data: { code: normalizedCode, name } });
+      console.log('Country created on the fly:', country);
     }
 
     console.log('Creating trip with data:', { userId, countryCode, entryDate, exitDate });
@@ -81,7 +74,7 @@ export async function POST(request: NextRequest) {
     const trip = await prisma.trip.create({
       data: {
         userId,
-        countryCode,
+        countryCode: normalizedCode,
         entryDate: new Date(entryDate),
         exitDate: new Date(exitDate)
       }
