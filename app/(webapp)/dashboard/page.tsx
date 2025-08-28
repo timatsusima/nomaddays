@@ -8,7 +8,9 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import NomadOnboarding, { NomadData } from '@/components/NomadOnboarding';
-import { resolveCountryName, countryFlag, countryColor } from '@/lib/countries';
+import { resolveCountryName, countryColor } from '@/lib/countries';
+import FlagIcon from '@/components/FlagIcon';
+import dayjs from 'dayjs';
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -114,6 +116,20 @@ export default function DashboardPage() {
     return sum + Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24));
   }, 0);
 
+  // Дней до окончания статуса (РВП/ВНЖ/туристический)
+  const [daysUntilPermitEnd, setDaysUntilPermitEnd] = useState<{ diff: number; type: string } | null>(null);
+  useEffect(() => {
+    try {
+      const endStr = typeof window !== 'undefined' ? localStorage.getItem('nomaddays_permit_end') : null;
+      const type = typeof window !== 'undefined' ? (localStorage.getItem('nomaddays_permit_type') || 'NONE') : 'NONE';
+      if (!endStr) return;
+      const end = new Date(endStr);
+      const today = new Date();
+      const diff = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      setDaysUntilPermitEnd({ diff, type });
+    } catch {}
+  }, []);
+
   // Дни по странам за последние 12 месяцев
   const countryDaysLast12m = useMemo(() => {
     const now = new Date();
@@ -214,6 +230,12 @@ export default function DashboardPage() {
         <div className="text-[var(--text)]">
           {totalDays === 0 ? 'Нет поездок' : 'Все в порядке'}
         </div>
+        {daysUntilPermitEnd && (
+          <div className="text-sm mt-2 text-[var(--text-secondary)]">
+            Дней до окончания {daysUntilPermitEnd.type === 'RVP' ? 'РВП' : daysUntilPermitEnd.type === 'VNZH' ? 'ВНЖ' : 'статуса'}:
+            <span className="ml-1 font-semibold text-[var(--text)]">{Math.max(0, daysUntilPermitEnd.diff)}</span>
+          </div>
+        )}
       </div>
 
       {/* Country Days (Last 12 months) */}
@@ -225,7 +247,7 @@ export default function DashboardPage() {
             <div className="flex items-end gap-3 min-w-[600px]">
               {monthlyTotals.items.map(({ month, total, code }) => {
                 const height = Math.max(8, Math.round((total / monthlyTotals.max) * 96));
-                const label = month;
+                const label = dayjs(`${month}-01`).format('MMM');
                 return (
                   <div key={month} className="flex flex-col items-center w-12">
                     <div className="relative w-full h-24">
@@ -251,7 +273,7 @@ export default function DashboardPage() {
             {countryDaysLast12m.map((row) => (
               <div key={row.code} className="card flex items-center justify-between py-3">
                 <div className="font-semibold text-[var(--text)] flex items-center gap-2">
-                  <span aria-hidden className="emoji">{countryFlag(row.code)}</span>
+                  <FlagIcon code={row.code} />
                   <span>{row.name} ({row.code})</span>
                 </div>
                 <div className="font-bold" style={{ color: countryColor(row.code) }}>{row.days}</div>
@@ -323,7 +345,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-semibold text-[var(--text)] flex items-center gap-2">
-                      <span aria-hidden className="emoji">{countryFlag(trip.countryCode)}</span>
+                      <FlagIcon code={trip.countryCode} />
                       <span>{trip.countryCode}</span>
                     </div>
                     <div className="text-sm text-[var(--text-secondary)]">
