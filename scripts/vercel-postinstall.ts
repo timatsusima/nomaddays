@@ -15,15 +15,22 @@ async function initializeDatabase() {
     await prisma.$executeRaw`CREATE SCHEMA IF NOT EXISTS public`;
     
     // Проверяем, есть ли таблицы
-    const tableExists = await prisma.$queryRaw`
+    const tableExistsResult = await prisma.$queryRaw`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'Country'
-      );
+      ) as exists;
     `;
     
-    if (!tableExists[0]?.exists) {
+    const tableExists = Array.isArray(tableExistsResult) && 
+                       tableExistsResult.length > 0 && 
+                       typeof tableExistsResult[0] === 'object' && 
+                       tableExistsResult[0] !== null &&
+                       'exists' in tableExistsResult[0] &&
+                       tableExistsResult[0].exists === true;
+    
+    if (!tableExists) {
       console.log('🔄 Tables don\'t exist, pushing schema...');
       // Здесь мы не можем использовать prisma db push, поэтому создаём таблицы вручную
       await prisma.$executeRaw`
