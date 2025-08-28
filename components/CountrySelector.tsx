@@ -153,7 +153,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2.5 text-left bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm"
+        className="w-full h-12 px-3 text-left bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm"
       >
         {selectedCountry ? (
           <div className="flex items-center space-x-2">
