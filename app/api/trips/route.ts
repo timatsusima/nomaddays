@@ -7,19 +7,27 @@ const TEST_USER_ID = 'test-user-123';
 // GET /api/trips - получить все поездки пользователя
 export async function GET(request: NextRequest) {
   try {
+    console.log('GET /api/trips - starting...');
+    
     // Временно используем hardcoded userId для тестирования
     const userId = TEST_USER_ID;
+    console.log('Using userId:', userId);
 
     const trips = await prisma.trip.findMany({
       where: { userId },
       orderBy: { entryDate: 'desc' }
     });
 
+    console.log('Found trips:', trips.length);
     return NextResponse.json(trips);
   } catch (error) {
     console.error('Error fetching trips:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
@@ -28,17 +36,28 @@ export async function GET(request: NextRequest) {
 // POST /api/trips - создать новую поездку
 export async function POST(request: NextRequest) {
   try {
-    const { countryCode, entryDate, exitDate } = await request.json();
+    console.log('POST /api/trips - starting...');
+    
+    const body = await request.json();
+    console.log('Request body:', body);
+    
+    const { countryCode, entryDate, exitDate } = body;
 
     if (!countryCode || !entryDate || !exitDate) {
+      console.log('Missing fields:', { countryCode, entryDate, exitDate });
       return NextResponse.json(
-        { error: 'Missing required fields: countryCode, entryDate, exitDate' },
+        { 
+          error: 'Missing required fields',
+          required: ['countryCode', 'entryDate', 'exitDate'],
+          received: { countryCode, entryDate, exitDate }
+        },
         { status: 400 }
       );
     }
 
     // Временно используем hardcoded userId для тестирования
     const userId = TEST_USER_ID;
+    console.log('Using userId:', userId);
 
     // Проверяем, существует ли страна
     const country = await prisma.country.findUnique({
@@ -46,12 +65,19 @@ export async function POST(request: NextRequest) {
     });
 
     if (!country) {
+      console.log('Country not found:', countryCode);
       return NextResponse.json(
-        { error: 'Country not found' },
+        { 
+          error: 'Country not found',
+          countryCode,
+          availableCountries: await prisma.country.findMany({ select: { code: true, name: true } })
+        },
         { status: 400 }
       );
     }
 
+    console.log('Creating trip with data:', { userId, countryCode, entryDate, exitDate });
+    
     const trip = await prisma.trip.create({
       data: {
         userId,
@@ -61,11 +87,16 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('Trip created successfully:', trip);
     return NextResponse.json(trip, { status: 201 });
   } catch (error) {
     console.error('Error creating trip:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }

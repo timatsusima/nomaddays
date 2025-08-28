@@ -1,45 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// Временный userId для тестирования
 const TEST_USER_ID = 'test-user-123';
 
-// GET /api/rules - получить все правила пользователя
 export async function GET(request: NextRequest) {
   try {
-    // Временно используем hardcoded userId для тестирования
+    console.log('GET /api/rules - starting...');
+    
     const userId = TEST_USER_ID;
-
-    const rules = await prisma.ruleProfile.findMany({
-      where: { userId },
-      orderBy: { key: 'asc' }
+    console.log('Using userId:', userId);
+    
+    const rules = await prisma.ruleProfile.findMany({ 
+      where: { userId } 
     });
-
+    
+    console.log('Found rules:', rules.length);
     return NextResponse.json(rules);
   } catch (error) {
     console.error('Error fetching rules:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
 }
 
-// POST /api/rules - создать новое правило
 export async function POST(request: NextRequest) {
   try {
-    const { key, params, enabled } = await request.json();
-
+    console.log('POST /api/rules - starting...');
+    
+    const body = await request.json();
+    console.log('Request body:', body);
+    
+    const { key, params, enabled } = body;
+    
     if (!key || !params) {
+      console.log('Missing fields:', { key, params });
       return NextResponse.json(
-        { error: 'key and params are required' },
+        { 
+          error: 'Missing required fields',
+          required: ['key', 'params'],
+          received: { key, params, enabled }
+        },
         { status: 400 }
       );
     }
-
-    // Временно используем hardcoded userId для тестирования
+    
     const userId = TEST_USER_ID;
-
+    console.log('Creating rule with data:', { userId, key, params, enabled });
+    
     const rule = await prisma.ruleProfile.create({
       data: {
         userId,
@@ -48,12 +61,17 @@ export async function POST(request: NextRequest) {
         enabled: enabled ?? true
       }
     });
-
+    
+    console.log('Rule created successfully:', rule);
     return NextResponse.json(rule, { status: 201 });
   } catch (error) {
-    console.error('Error creating/updating rule:', error);
+    console.error('Error creating rule:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
