@@ -4,7 +4,7 @@ import Script from 'next/script';
 import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'NomadDays - Digital Nomad Travel Tracker',
@@ -34,7 +34,7 @@ export default function RootLayout({
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ fontFeatureSettings: '"cv01" on' }}>
         {children}
         <Analytics />
       </body>

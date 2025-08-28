@@ -51,12 +51,14 @@ export function countryFlag(code: string): string {
 }
 
 export function countryColor(code: string): string {
-  // Deterministic pastel color per country using simple hash → HSL
+  // Deterministic, higher-contrast color per country (works on dark bg)
   const cc = String(code || '').toUpperCase();
   let hash = 0;
   for (let i = 0; i < cc.length; i++) hash = (hash * 31 + cc.charCodeAt(i)) >>> 0;
   const hue = hash % 360;
-  return `hsl(${hue} 70% 50%)`;
+  const saturation = 85;
+  const lightness = 60;
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
 }
 
 

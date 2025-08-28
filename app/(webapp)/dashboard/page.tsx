@@ -213,17 +213,17 @@ export default function DashboardPage() {
             <div className="flex items-end gap-2 min-w-[600px]">
               {monthlyByCountry.map(({ month, data }) => {
                 const total = Object.values(data).reduce((s, v) => s + v, 0) || 1;
-                let yOffset = 0;
+                let yOffset = 96; // рисуем стек снизу вверх
                 return (
                   <div key={month} className="flex flex-col items-center w-10">
                     <div className="relative w-full h-24 border border-[var(--border)] rounded overflow-hidden">
                       {Object.entries(data)
-                        .sort((a, b) => b[1] - a[1])
+                        .sort((a, b) => a[1] - b[1])
                         .map(([code, days]) => {
                           const height = Math.max(2, Math.round((days / total) * 96));
-                          const style = { backgroundColor: countryColor(code), height: `${height}px`, top: `${yOffset}px` } as React.CSSProperties;
-                          yOffset += height;
-                          return <div key={code} className="absolute left-0 right-0" style={style} title={`${code}: ${days}`} />;
+                          yOffset -= height;
+                          const style = { backgroundColor: countryColor(code), height: `${height}px`, top: `${yOffset}px`, borderTop: '1px solid rgba(0,0,0,.1)' } as React.CSSProperties;
+                          return <div key={code} className="absolute left-0 right-0" style={style} title={`${countryFlag(code)} ${code}: ${days}`} />;
                         })}
                     </div>
                     <div className="text-[10px] text-[var(--text-secondary)] mt-1">{month}</div>
