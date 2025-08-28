@@ -1,6 +1,7 @@
 export interface DateRange {
   start: Date;
   end: Date;
+  countryCode?: string;
 }
 
 export interface Trip {
@@ -26,6 +27,10 @@ export interface RuleParams {
   
   // Максимум дней вне страны (для резиденции)
   maxDaysOutside?: number;
+
+  // Минимум дней в конкретной стране (например, для ВНЖ/РВП)
+  minDaysInCountry?: number;
+  countryCode?: string;
   
   // Название правила для UI
   name: string;

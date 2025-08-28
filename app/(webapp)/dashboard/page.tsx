@@ -4,10 +4,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import NomadOnboarding, { NomadData } from '@/components/NomadOnboarding';
+import { resolveCountryName } from '@/lib/countries';
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -110,6 +111,33 @@ export default function DashboardPage() {
     return sum + Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24));
   }, 0);
 
+  // Дни по странам за последние 12 месяцев
+  const countryDaysLast12m = useMemo(() => {
+    const now = new Date();
+    const windowStart = new Date(now.getTime());
+    windowStart.setDate(windowStart.getDate() - 365);
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    const acc = new Map<string, number>();
+
+    for (const trip of trips) {
+      const tripStart = new Date(trip.entryDate);
+      const tripEnd = new Date(trip.exitDate);
+
+      // Пересечение с окном последних 12 месяцев
+      const start = tripStart > windowStart ? tripStart : windowStart;
+      const end = tripEnd < now ? tripEnd : now;
+      if (end.getTime() <= start.getTime()) continue;
+
+      const days = Math.ceil((end.getTime() - start.getTime()) / MS_PER_DAY);
+      acc.set(trip.countryCode, (acc.get(trip.countryCode) || 0) + days);
+    }
+
+    return Array.from(acc.entries())
+      .map(([code, days]) => ({ code, name: resolveCountryName(code), days }))
+      .sort((a, b) => b.days - a.days);
+  }, [trips]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center">
@@ -148,6 +176,23 @@ export default function DashboardPage() {
         <div className="text-[var(--text)]">
           {totalDays === 0 ? 'Нет поездок' : 'Все в порядке'}
         </div>
+      </div>
+
+      {/* Country Days (Last 12 months) */}
+      <div className="mb-6 px-4">
+        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">Дни по странам (12 мес.)</h2>
+        {countryDaysLast12m.length === 0 ? (
+          <div className="card text-center py-6 text-[var(--text-secondary)]">Нет данных</div>
+        ) : (
+          <div className="space-y-2">
+            {countryDaysLast12m.map((row) => (
+              <div key={row.code} className="card flex items-center justify-between py-3">
+                <div className="font-semibold text-[var(--text)]">{row.name} ({row.code})</div>
+                <div className="text-[var(--brand)] font-bold">{row.days}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}

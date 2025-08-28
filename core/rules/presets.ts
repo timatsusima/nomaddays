@@ -9,6 +9,14 @@ export const RULE_PRESETS: Record<string, RuleParams> = {
     calendarYear: true,
     rolling12Months: false
   },
+
+  KZ_RESIDENCY_MIN_STAY: {
+    name: 'Минимум 183 дня в РК',
+    description: 'Требование РВП/ВНЖ: находиться в РК не менее 183 дней в календарном году',
+    minDaysInCountry: 183,
+    countryCode: 'KZ',
+    calendarYear: true
+  },
   
   // TODO: Настроить актуальные лимиты для Шенгена
   SCHENGEN_90_180: {
