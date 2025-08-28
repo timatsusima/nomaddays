@@ -27,6 +27,22 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+  /* Не даём iOS самовольно масштабировать текст */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Сбрасываем нативные стили форм на iOS/Safari/Telegram */
+button, input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border-radius: 0;
+}
+
+/* Убираем авто-увеличение размеров инпутов на iOS при фокусе */
+input, select, textarea {
+  font-size: 16px;
 }
 
 body {
@@ -207,11 +223,9 @@ a {
   body {
     padding: 12px;
   }
-  
   .card {
     padding: 12px;
   }
-  
   .btn {
     padding: 10px 20px;
     font-size: 14px;

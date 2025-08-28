@@ -153,16 +153,16 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-12 px-3 text-left bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm"
+        className="w-full h-12 px-3 text-left bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm overflow-hidden"
       >
         {selectedCountry ? (
           <div className="flex items-center space-x-2">
-            <span className="text-lg">{selectedCountry.flag}</span>
-            <span className="text-gray-900 font-medium flex-1">{selectedCountry.name}</span>
-            <span className="text-gray-500 text-xs">({selectedCountry.code})</span>
+            <span className="text-base leading-none">{selectedCountry.flag}</span>
+            <span className="text-gray-900 font-medium flex-1 truncate leading-none">{selectedCountry.name}</span>
+            <span className="text-gray-500 text-xs leading-none">({selectedCountry.code})</span>
           </div>
         ) : (
-          <span className="text-gray-500">{placeholder}</span>
+          <span className="text-gray-500 leading-none">{placeholder}</span>
         )}
         <svg
           className={`ml-auto h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -175,7 +175,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-64 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-xl max-h-64 overflow-hidden">
           <div className="sticky top-0 p-2 border-b border-gray-100 bg-gray-50">
             <input
               type="text"
@@ -198,12 +198,12 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
                   key={country.code}
                   type="button"
                   onClick={() => handleSelect(country)}
-                  className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0 text-sm"
+                  className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0 text-sm rounded-none"
                 >
                   <div className="flex items-center space-x-2">
-                    <span className="text-lg">{country.flag}</span>
+                    <span className="text-base leading-none">{country.flag}</span>
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-gray-900">{country.name}</div>
+                      <div className="font-medium text-gray-900 leading-tight">{country.name}</div>
                       <div className="text-xs text-gray-500">({country.code})</div>
                     </div>
                   </div>
