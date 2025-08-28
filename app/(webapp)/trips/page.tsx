@@ -38,7 +38,7 @@ export default function TripsPage() {
         setTrips(data);
       }
     } catch (error) {
-      // Silent fail for production
+      console.error('Error loading trips:', error);
     } finally {
       setIsLoading(false);
     }
@@ -46,6 +46,12 @@ export default function TripsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.countryCode || !formData.entryDate || !formData.exitDate) {
+      alert('Пожалуйста, заполните все поля');
+      return;
+    }
+
     try {
       const response = await fetch('/api/trips', {
         method: 'POST',
@@ -56,10 +62,14 @@ export default function TripsPage() {
       if (response.ok) {
         setFormData({ countryCode: '', entryDate: '', exitDate: '' });
         setShowForm(false);
-        loadTrips();
+        await loadTrips();
+        alert('Поездка добавлена!');
+      } else {
+        alert('Ошибка при добавлении поездки');
       }
     } catch (error) {
-      // Silent fail for production
+      console.error('Error adding trip:', error);
+      alert('Ошибка при добавлении поездки');
     }
   };
 
@@ -91,14 +101,20 @@ export default function TripsPage() {
         setEditingTrip(null);
         setFormData({ countryCode: '', entryDate: '', exitDate: '' });
         setShowForm(false);
-        loadTrips();
+        await loadTrips();
+        alert('Поездка обновлена!');
+      } else {
+        alert('Ошибка при обновлении поездки');
       }
     } catch (error) {
-      // Silent fail for production
+      console.error('Error updating trip:', error);
+      alert('Ошибка при обновлении поездки');
     }
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm('Удалить поездку?')) return;
+    
     try {
       const response = await fetch(`/api/trips`, {
         method: 'DELETE',
@@ -107,10 +123,14 @@ export default function TripsPage() {
       });
 
       if (response.ok) {
-        loadTrips();
+        await loadTrips();
+        alert('Поездка удалена!');
+      } else {
+        alert('Ошибка при удалении поездки');
       }
     } catch (error) {
-      // Silent fail for production
+      console.error('Error deleting trip:', error);
+      alert('Ошибка при удалении поездки');
     }
   };
 

@@ -49,17 +49,25 @@ export default function DashboardPage() {
 
   const handleOnboardingComplete = async (data: NomadData) => {
     try {
+      console.log('Onboarding completed with data:', data);
+      
       // Сохраняем данные номада
       localStorage.setItem('nomaddays_citizenship', data.citizenship);
       localStorage.setItem('nomaddays_residence', data.residenceCountry);
       
       // Добавляем поездки через API
-      for (const trip of data.trips) {
-        await fetch('/api/trips', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(trip)
-        });
+      if (data.trips.length > 0) {
+        for (const trip of data.trips) {
+          const response = await fetch('/api/trips', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(trip)
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to add trip:', trip);
+          }
+        }
       }
       
       // Отмечаем onboarding как завершенный
@@ -67,9 +75,12 @@ export default function DashboardPage() {
       setShowOnboarding(false);
       
       // Перезагружаем данные
-      loadInitialData();
+      await loadInitialData();
+      
+      alert('Профиль номада настроен!');
     } catch (error) {
-      // Silent fail for production
+      console.error('Error completing onboarding:', error);
+      alert('Ошибка при настройке профиля');
       localStorage.setItem('nomaddays_onboarding_completed', 'true');
       setShowOnboarding(false);
     }

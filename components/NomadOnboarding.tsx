@@ -63,6 +63,11 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
   };
 
   const handleComplete = () => {
+    if (!citizenship || !residenceCountry) {
+      alert('Пожалуйста, заполните гражданство и страну ВНЖ/РВП');
+      return;
+    }
+    
     onComplete({
       citizenship,
       residenceCountry,
@@ -74,6 +79,10 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
     if (step === 1) return citizenship;
     if (step === 2) return residenceCountry;
     return true;
+  };
+
+  const canComplete = () => {
+    return citizenship && residenceCountry;
   };
 
   return (
@@ -230,6 +239,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
           ) : (
             <button
               onClick={handleComplete}
+              disabled={!canComplete()}
               className="btn flex-1"
             >
               Завершить
