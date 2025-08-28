@@ -87,11 +87,11 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-[var(--bg)] rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-bg rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-[var(--text)] mb-2">Добро пожаловать в NomadDays!</h2>
-          <p className="text-[var(--text-secondary)]">Давайте настроим ваш профиль номада</p>
+          <h2 className="text-2xl font-bold text-text mb-2">Добро пожаловать в NomadDays!</h2>
+          <p className="text-text-secondary">Давайте настроим ваш профиль номада</p>
         </div>
 
         {/* Progress */}
@@ -101,8 +101,8 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
               key={stepNumber}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 stepNumber <= step
-                  ? 'bg-[var(--brand)] text-white'
-                  : 'bg-[var(--border)] text-[var(--text-secondary)]'
+                  ? 'bg-brand text-white'
+                  : 'bg-border text-text-secondary'
               }`}
             >
               {stepNumber}
@@ -121,7 +121,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                 placeholder="Выберите страну гражданства"
               />
             </div>
-            <div className="text-sm text-[var(--text-secondary)] text-center">
+            <div className="text-sm text-text-secondary text-center">
               Это поможет определить правила въезда/выезда для вас
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                 placeholder="Выберите страну ВНЖ/РВП"
               />
             </div>
-            <div className="text-sm text-[var(--text-secondary)] text-center">
+            <div className="text-sm text-text-secondary text-center">
               Если у вас нет ВНЖ/РВП, выберите "Вне РК"
             </div>
           </div>
@@ -194,16 +194,16 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
                     <div key={index} className="card p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-[var(--text)] text-sm">
+                          <div className="font-semibold text-text text-sm">
                             {trip.countryCode}
                           </div>
-                          <div className="text-xs text-[var(--text-secondary)]">
+                          <div className="text-xs text-text-secondary">
                             {trip.entryDate} - {trip.exitDate}
                           </div>
                         </div>
                         <button
                           onClick={() => handleRemoveTrip(index)}
-                          className="text-[var(--red)] hover:text-[var(--red)] text-sm"
+                          className="text-red hover:text-red text-sm"
                         >
                           ✕
                         </button>
@@ -214,7 +214,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
               </div>
             )}
 
-            <div className="text-sm text-[var(--text-secondary)] text-center">
+            <div className="text-sm text-text-secondary text-center">
               Добавьте все поездки за последние 12 месяцев для точного расчета
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function NomadOnboarding({ isOpen, onComplete, onSkip }: NomadOnb
         <div className="text-center mt-4">
           <button
             onClick={onSkip}
-            className="text-[var(--text-secondary)] text-sm hover:text-[var(--text)]"
+            className="text-text-secondary text-sm hover:text-text"
           >
             Пропустить настройку
           </button>

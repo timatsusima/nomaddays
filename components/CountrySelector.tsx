@@ -58,7 +58,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-12 px-4 text-left bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base appearance-none"
+        className="form-input w-full pr-10"
       >
         <option value="">{placeholder}</option>
         {COUNTRIES.map((country) => (
@@ -68,7 +68,7 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
         ))}
       </select>
       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-        <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
