@@ -1,7 +1,3 @@
-// Navigation v3.0 - FORCE REFRESH
-// Build: 2024-08-27 21:00
-// Cache: NO-CACHE-HEADERS
-
 'use client';
 
 import Link from 'next/link';
@@ -19,8 +15,8 @@ export default function Navigation() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg)] border-t border-[var(--border)] p-2 z-50">
-      <div className="flex justify-around items-center">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-50">
+      <div className="flex justify-around items-center py-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -28,17 +24,17 @@ export default function Navigation() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-[var(--hover)] text-[var(--text)]' 
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
+                isActive
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
-              <span className="text-lg mb-1">{item.icon}</span>
+              <span className="text-xl mb-1">{item.icon}</span>
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
