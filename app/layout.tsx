@@ -34,7 +34,7 @@ export default function RootLayout({
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-surface text-text min-h-screen`}>
         {children}
         <Analytics />
       </body>
