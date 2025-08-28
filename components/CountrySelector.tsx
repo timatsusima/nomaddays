@@ -1,12 +1,21 @@
+// CountrySelector v3.1 - COMPLETE REDESIGN
+// Build: 2024-08-27 21:10
+// Cache: NO-CACHE-HEADERS
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
 
-interface Country {
+export interface Country {
   code: string;
   name: string;
   flag: string;
+}
+
+export interface CountrySelectorProps {
+  value: string;
+  onChange: (countryCode: string) => void;
+  placeholder?: string;
 }
 
 const COUNTRIES: Country[] = [
@@ -43,86 +52,32 @@ const COUNTRIES: Country[] = [
   { code: 'US', name: 'США', flag: '🇺🇸' },
   { code: 'CA', name: 'Канада', flag: '🇨🇦' },
   { code: 'GB', name: 'Великобритания', flag: '🇬🇧' },
-  { code: 'AU', name: 'Австралия', flag: '🇦🇺' },
-  { code: 'NZ', name: 'Новая Зеландия', flag: '🇳🇿' },
-  { code: 'JP', name: 'Япония', flag: '🇯🇵' },
-  { code: 'KR', name: 'Южная Корея', flag: '🇰🇷' },
-  { code: 'SG', name: 'Сингапур', flag: '🇸🇬' },
-  { code: 'TH', name: 'Таиланд', flag: '🇹🇭' },
-  { code: 'VN', name: 'Вьетнам', flag: '🇻🇳' },
-  { code: 'MY', name: 'Малайзия', flag: '🇲🇾' },
-  { code: 'ID', name: 'Индонезия', flag: '🇮🇩' },
-  { code: 'PH', name: 'Филиппины', flag: '🇵🇭' },
-  { code: 'IN', name: 'Индия', flag: '🇮🇳' },
-  { code: 'BR', name: 'Бразилия', flag: '🇧🇷' },
-  { code: 'AR', name: 'Аргентина', flag: '🇦🇷' },
-  { code: 'MX', name: 'Мексика', flag: '🇲🇽' },
-  { code: 'CL', name: 'Чили', flag: '🇨🇱' },
-  { code: 'CO', name: 'Колумбия', flag: '🇨🇴' },
-  { code: 'PE', name: 'Перу', flag: '🇵🇪' },
-  { code: 'UY', name: 'Уругвай', flag: '🇺🇾' },
-  { code: 'ZA', name: 'ЮАР', flag: '🇿🇦' },
-  { code: 'EG', name: 'Египет', flag: '🇪🇬' },
-  { code: 'MA', name: 'Марокко', flag: '🇲🇦' },
+  { code: 'KZ', name: 'Казахстан', flag: '🇰🇿' },
+  { code: 'RU', name: 'Россия', flag: '🇷🇺' },
+  { code: 'UA', name: 'Украина', flag: '🇺🇦' },
+  { code: 'BY', name: 'Беларусь', flag: '🇧🇾' },
   { code: 'TR', name: 'Турция', flag: '🇹🇷' },
   { code: 'IL', name: 'Израиль', flag: '🇮🇱' },
   { code: 'AE', name: 'ОАЭ', flag: '🇦🇪' },
-  { code: 'SA', name: 'Саудовская Аравия', flag: '🇸🇦' },
-  { code: 'QA', name: 'Катар', flag: '🇶🇦' },
-  { code: 'KW', name: 'Кувейт', flag: '🇰🇼' },
-  { code: 'BH', name: 'Бахрейн', flag: '🇧🇭' },
-  { code: 'OM', name: 'Оман', flag: '🇴🇲' },
-  { code: 'JO', name: 'Иордания', flag: '🇯🇴' },
-  { code: 'LB', name: 'Ливан', flag: '🇱🇧' },
-  { code: 'SY', name: 'Сирия', flag: '🇸🇾' },
-  { code: 'IQ', name: 'Ирак', flag: '🇮🇶' },
-  { code: 'IR', name: 'Иран', flag: '🇮🇷' },
-  { code: 'AF', name: 'Афганистан', flag: '🇦🇫' },
-  { code: 'PK', name: 'Пакистан', flag: '🇵🇰' },
-  { code: 'BD', name: 'Бангладеш', flag: '🇧🇩' },
-  { code: 'LK', name: 'Шри-Ланка', flag: '🇱🇰' },
-  { code: 'NP', name: 'Непал', flag: '🇳🇵' },
-  { code: 'BT', name: 'Бутан', flag: '🇧🇹' },
-  { code: 'MM', name: 'Мьянма', flag: '🇲🇲' },
-  { code: 'LA', name: 'Лаос', flag: '🇱🇦' },
-  { code: 'KH', name: 'Камбоджа', flag: '🇰🇭' },
-  { code: 'MN', name: 'Монголия', flag: '🇲🇳' },
-  { code: 'KZ', name: 'Казахстан', flag: '🇰🇿' },
-  { code: 'UZ', name: 'Узбекистан', flag: '🇺🇿' },
-  { code: 'KG', name: 'Кыргызстан', flag: '🇰🇬' },
-  { code: 'TJ', name: 'Таджикистан', flag: '🇹🇯' },
-  { code: 'TM', name: 'Туркменистан', flag: '🇹🇲' },
-  { code: 'AZ', name: 'Азербайджан', flag: '🇦🇿' },
-  { code: 'GE', name: 'Грузия', flag: '🇬🇪' },
-  { code: 'AM', name: 'Армения', flag: '🇦🇲' },
-  { code: 'RU', name: 'Россия', flag: '🇷🇺' },
-  { code: 'BY', name: 'Беларусь', flag: '🇧🇾' },
-  { code: 'UA', name: 'Украина', flag: '🇺🇦' },
-  { code: 'MD', name: 'Молдова', flag: '🇲🇩' },
-  { code: 'RS', name: 'Сербия', flag: '🇷🇸' },
-  { code: 'ME', name: 'Черногория', flag: '🇲🇪' },
-  { code: 'BA', name: 'Босния и Герцеговина', flag: '🇧🇦' },
-  { code: 'MK', name: 'Северная Македония', flag: '🇲🇰' },
-  { code: 'AL', name: 'Албания', flag: '🇦🇱' },
-  { code: 'XK', name: 'Косово', flag: '🇽🇰' },
-  { code: 'AD', name: 'Андорра', flag: '🇦🇩' },
-  { code: 'LI', name: 'Лихтенштейн', flag: '🇱🇮' },
-  { code: 'MC', name: 'Монако', flag: '🇲🇨' },
-  { code: 'SM', name: 'Сан-Марино', flag: '🇸🇲' },
-  { code: 'VA', name: 'Ватикан', flag: '🇻🇦' },
-  { code: 'OUTSIDE', name: 'Вне РК', flag: '🌍' }
+  { code: 'TH', name: 'Таиланд', flag: '🇹🇭' },
+  { code: 'VN', name: 'Вьетнам', flag: '🇻🇳' },
+  { code: 'JP', name: 'Япония', flag: '🇯🇵' },
+  { code: 'KR', name: 'Южная Корея', flag: '🇰🇷' },
+  { code: 'SG', name: 'Сингапур', flag: '🇸🇬' },
+  { code: 'AU', name: 'Австралия', flag: '🇦🇺' },
+  { code: 'NZ', name: 'Новая Зеландия', flag: '🇳🇿' },
 ];
-
-interface CountrySelectorProps {
-  value?: string;
-  onChange: (countryCode: string) => void;
-  placeholder?: string;
-}
 
 export function CountrySelector({ value, onChange, placeholder = 'Выберите страну' }: CountrySelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectedCountry = COUNTRIES.find(country => country.code === value);
+  const filteredCountries = COUNTRIES.filter(country =>
+    country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    country.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -135,13 +90,6 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedCountry = COUNTRIES.find(c => c.code === value);
-  
-  const filteredCountries = COUNTRIES.filter(country =>
-    country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleSelect = (country: Country) => {
     onChange(country.code);
     setIsOpen(false);
@@ -153,19 +101,19 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-11 px-4 text-left bg-[var(--bg)] border border-[var(--border)] rounded-lg hover:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-colors text-[15px] overflow-hidden"
+        className="w-full h-12 px-4 text-left bg-[var(--bg)] border border-[var(--border)] rounded-xl hover:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all duration-200 text-[15px] overflow-hidden"
       >
         {selectedCountry ? (
           <div className="flex items-center gap-3">
-            <span className="text-lg leading-none">{selectedCountry.flag}</span>
+            <span className="text-xl leading-none">{selectedCountry.flag}</span>
             <span className="text-[var(--text)] font-semibold flex-1 truncate leading-none">{selectedCountry.name}</span>
             <span className="text-[var(--text-secondary)] text-sm leading-none">({selectedCountry.code})</span>
           </div>
         ) : (
-          <span className="text-[var(--text-secondary)] leading-none">Выберите страну</span>
+          <span className="text-[var(--text-secondary)] leading-none">{placeholder}</span>
         )}
         <svg
-          className={`w-5 h-5 text-[var(--text-secondary)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-[var(--text-secondary)] transition-transform duration-200 ml-auto ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -176,9 +124,9 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden">
-          <div className="sticky top-0 p-2 border-b border-[var(--border)] bg-[var(--surface)]">
-            <div className="flex items-center gap-2 bg-[var(--bg)] border border-[var(--border)] rounded-full px-3 h-11">
-              <svg className="w-5 h-5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <div className="sticky top-0 p-3 border-b border-[var(--border)] bg-[var(--surface)]">
+            <div className="flex items-center gap-3 bg-[var(--bg)] border border-[var(--border)] rounded-full px-4 h-12">
+              <svg className="w-5 h-5 text-[var(--text-secondary)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
               </svg>
               <input
@@ -191,22 +139,22 @@ export function CountrySelector({ value, onChange, placeholder = 'Выберит
               />
             </div>
           </div>
-          <div className="max-h-72 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto">
             {filteredCountries.length === 0 ? (
-              <div className="p-4 text-center text-[var(--text-secondary)] text-sm">Ничего не найдено</div>
+              <div className="p-6 text-center text-[var(--text-secondary)] text-sm">Ничего не найдено</div>
             ) : (
               filteredCountries.map((country) => (
                 <button
                   key={country.code}
                   type="button"
                   onClick={() => handleSelect(country)}
-                  className="w-full px-4 py-3 text-left hover:bg-[var(--hover)] focus:bg-[var(--hover)] focus:outline-none transition-colors border-b border-[var(--border)] last:border-b-0"
+                  className="w-full px-4 py-4 text-left hover:bg-[var(--hover)] focus:bg-[var(--hover)] focus:outline-none transition-colors border-b border-[var(--border)] last:border-b-0"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{country.flag}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-2xl flex-shrink-0">{country.flag}</span>
                     <div className="flex-1 text-left">
-                      <div className="font-semibold text-[var(--text)] text-[16px]">{country.name}</div>
-                      <div className="text-[13px] text-[var(--text-secondary)]">{country.code}</div>
+                      <div className="font-semibold text-[var(--text)] text-[16px] leading-tight">{country.name}</div>
+                      <div className="text-[13px] text-[var(--text-secondary)] leading-tight mt-1">{country.code}</div>
                     </div>
                   </div>
                 </button>
