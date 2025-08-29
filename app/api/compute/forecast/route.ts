@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     // Fallback: локальный движок
     const forecast = await RulesEngine.calculateForecast(
-      { plannedTrip, userId },
+      { plannedTrip, userId, residenceCountry },
       engineTrips,
       engineRules
     );

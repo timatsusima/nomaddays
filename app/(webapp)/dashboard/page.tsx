@@ -174,6 +174,29 @@ export default function DashboardPage() {
     return Math.max(0, windowDays - outside);
   }, [countryDaysLast12m, residenceCode]);
 
+  // Дни в стране с начала календарного года
+  const daysInResidenceCalendarYear = useMemo(() => {
+    if (!residenceCode) return null;
+    const year = new Date().getFullYear();
+    const yearStart = new Date(`${year}-01-01T00:00:00Z`);
+    const today = new Date();
+    // считаем дни в стране резиденции: 365 (с начала года до сегодня) - дни поездок вне страны в этом окне
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    const windowDays = Math.ceil((today.getTime() - yearStart.getTime()) / MS_PER_DAY) + 1;
+    let outside = 0;
+    for (const trip of trips) {
+      const code = trip.countryCode;
+      if (code === residenceCode) continue;
+      const entry = new Date(trip.entryDate);
+      const exit = new Date(trip.exitDate);
+      const start = entry > yearStart ? entry : yearStart;
+      const end = exit < today ? exit : today;
+      if (end.getTime() <= start.getTime()) continue;
+      outside += Math.ceil((end.getTime() - start.getTime()) / MS_PER_DAY);
+    }
+    return Math.max(0, windowDays - outside);
+  }, [trips, residenceCode]);
+
   useEffect(() => {
     const totalOutside = countryDaysLast12m.reduce((sum, row) => {
       if (!residenceCode || row.code === residenceCode) return sum;
@@ -268,6 +291,12 @@ export default function DashboardPage() {
           <div className="text-sm mt-2 text-[var(--text-secondary)]">
             Дней в стране ВНЖ/РВП за 12 мес:
             <span className="ml-1 font-semibold text-[var(--text)]">{daysInResidenceLast12m}</span>
+          </div>
+        )}
+        {daysInResidenceCalendarYear !== null && (
+          <div className="text-sm mt-2 text-[var(--text-secondary)]">
+            Дней в стране с начала года:
+            <span className="ml-1 font-semibold text-[var(--text)]">{daysInResidenceCalendarYear}</span>
           </div>
         )}
         {outsideDaysLeft !== null && (

@@ -11,16 +11,26 @@ export class RulesEngine {
     trips: Trip[],
     rules: RuleProfile[]
   ): Promise<ForecastResult> {
-    const { plannedTrip } = request;
+    const { plannedTrip, residenceCountry } = request;
     
-    // Конвертируем поездки в формат DateRange
+    // Конвертируем поездки в формат DateRange (с возможным countryCode)
     const tripRanges: DateRange[] = trips.map(trip => ({
       start: trip.entryDate,
-      end: trip.exitDate
+      end: trip.exitDate,
+      // @ts-ignore — расширенное поле для внутренних вычислений
+      countryCode: (trip as any).countryCode
     }));
 
     // Добавляем планируемую поездку
-    const allTrips = [...tripRanges, plannedTrip];
+    const allTrips: DateRange[] = [...tripRanges, plannedTrip];
+    // Набор поездок вне страны резиденции (для правил типа KZ_RESIDENCY_TEST)
+    const outsideTrips: DateRange[] = residenceCountry
+      ? [
+          ...tripRanges.filter(r => (r as any).countryCode && (r as any).countryCode !== residenceCountry),
+          // консервативно считаем, что планируемая поездка — вне страны
+          plannedTrip
+        ]
+      : allTrips;
 
     // Рассчитываем результат для каждого правила
     const ruleResults: RuleResult[] = [];
@@ -29,7 +39,9 @@ export class RulesEngine {
     for (const rule of rules) {
       if (!rule.enabled) continue;
 
-      const result = this.calculateRuleResult(rule, allTrips, plannedTrip);
+      // Для правила "вне страны" считаем только дни вне страны резиденции
+      const ruleTrips = rule.key === 'KZ_RESIDENCY_TEST' && residenceCountry ? outsideTrips : allTrips;
+      const result = this.calculateRuleResult(rule, ruleTrips, plannedTrip);
       ruleResults.push(result);
 
       // Если хотя бы одно правило не соблюдается, поездка невозможна
