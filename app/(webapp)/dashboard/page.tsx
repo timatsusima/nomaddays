@@ -1,6 +1,7 @@
-// Dashboard v3.1 - Nomad Onboarding
-// Build: 2024-08-27 21:10
+// Dashboard v3.2 - Nomad Onboarding (Updated Navigation)
+// Build: 2024-08-27 21:15
 // Cache: NO-CACHE-HEADERS
+// Navigation: Updated (Import removed)
 
 'use client';
 

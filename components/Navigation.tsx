@@ -1,3 +1,4 @@
+// Navigation Component v2.0 - Import removed
 'use client';
 
 import Link from 'next/link';
