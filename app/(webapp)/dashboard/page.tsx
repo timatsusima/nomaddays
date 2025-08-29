@@ -11,6 +11,7 @@ import NomadOnboarding, { NomadData } from '@/components/NomadOnboarding';
 import { resolveCountryName, countryColor } from '@/lib/countries';
 import FlagIcon from '@/components/FlagIcon';
 import dayjs from 'dayjs';
+import AITips from '@/components/AITips';
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -198,8 +199,12 @@ export default function DashboardPage() {
   }, [trips, residenceCode]);
 
   useEffect(() => {
+    if (!residenceCode || residenceCode === 'NONE') {
+      setOutsideDaysLeft(null);
+      return;
+    }
     const totalOutside = countryDaysLast12m.reduce((sum, row) => {
-      if (!residenceCode || row.code === residenceCode) return sum;
+      if (row.code === residenceCode) return sum;
       return sum + row.days;
     }, 0);
     setOutsideDaysLeft(Math.max(0, 182 - totalOutside));
@@ -305,6 +310,11 @@ export default function DashboardPage() {
             <span className="ml-1 font-semibold text-[var(--text)]">{outsideDaysLeft}</span>
           </div>
         )}
+        {(!residenceCode || residenceCode === 'NONE') && (
+          <div className="mt-3">
+            <button onClick={() => setShowOnboarding(true)} className="btn">Указать страну ВНЖ/РВП</button>
+          </div>
+        )}
       </div>
 
       {/* Country Days (Last 12 months) */}
@@ -351,6 +361,9 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* AI Tips */}
+      <AITips trips={trips} />
 
       {/* Quick Actions */}
       <div className="mb-6 px-4">

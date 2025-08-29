@@ -34,7 +34,7 @@ const PlannerPage = () => {
   const handleDateSelection = async (dates: DateRange) => {
     setSelectedDates(dates);
     try {
-      const residenceCountry = typeof window !== 'undefined' ? localStorage.getItem('nomaddays_residence') : undefined;
+      const residenceCountry = typeof window !== 'undefined' ? (localStorage.getItem('nomaddays_residence') || undefined) : undefined;
       const res = await fetch('/api/compute/forecast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
