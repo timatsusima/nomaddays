@@ -8,7 +8,7 @@ export default function Loading() {
 
   useEffect(() => {
     let mounted = true;
-    fetch('/animation/splash.json')
+    fetch('/animations/splash_screen.json')
       .then((r) => r.json())
       .then((json) => mounted && setAnim(json))
       .catch(() => mounted && setAnim(null));
@@ -31,7 +31,7 @@ export default function Loading() {
         )}
       </div>
       <div className="absolute inset-x-0 bottom-12 text-center">
-        <div className="text-2xl font-bold tracking-wide text-[var(--text)]">NomadDays</div>
+        <div className="text-2xl font-bold tracking-wide text-[var(--text)]">n0mad_days</div>
       </div>
     </div>
   );

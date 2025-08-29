@@ -258,7 +258,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="bg-[var(--bg)] border-b border-[var(--border)] p-4 mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[var(--text)] mb-2">NomadDays</h1>
+          <h1 className="text-2xl font-bold text-[var(--text)] mb-2">n0mad_days</h1>
           <Link href="/about" className="text-[var(--brand)] underline">О приложении</Link>
         </div>
         <p className="text-[var(--text-secondary)]">Отслеживайте дни по странам</p>
