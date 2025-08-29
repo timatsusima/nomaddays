@@ -110,6 +110,20 @@ export class RulesEngine {
       } else {
         explanation = `В окне ${params.mDays} дней использовано ${usedDays} из ${params.nDays} доступных дней`;
       }
+      // Спец‑объяснение для KZ «вне страны» (ключ может быть любым, используем n/m‑окно)
+      if (rule.key === 'KZ_RESIDENCY_TEST' && plannedTrip) {
+        const plannedDays = Math.ceil(
+          (new Date(plannedTrip.end).getTime() - new Date(plannedTrip.start).getTime()) / (1000 * 60 * 60 * 24)
+        ) + 1;
+        const rest = Math.max(0, params.nDays - usedDays);
+        explanation = `Остаток вне страны: ${rest} дней; планируемая поездка: ${plannedDays} дней.`;
+        if (plannedDays > rest) {
+          severity = 'RISK';
+        } else if (plannedDays > rest * 0.5) {
+          severity = severity === 'OK' ? 'WARNING' : severity;
+        }
+        availableDays = rest;
+      }
     } else if (params.maxDaysPerYear && params.calendarYear) {
       // Календарный год
       const currentYear = new Date().getFullYear();

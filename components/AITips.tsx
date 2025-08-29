@@ -14,28 +14,53 @@ interface Props {
 export default function AITips({ trips }: Props) {
   const [state, setState] = useState<TipState>({ tips: [], loading: true });
 
-  useEffect(() => {
-    const profile = {
-      citizenship: localStorage.getItem('nomaddays_citizenship') || undefined,
-      residenceCountry: localStorage.getItem('nomaddays_residence') || undefined,
-      residencePermitType: localStorage.getItem('nomaddays_permit_type') || undefined,
-      residencePermitStart: localStorage.getItem('nomaddays_permit_start') || undefined,
-      residencePermitEnd: localStorage.getItem('nomaddays_permit_end') || undefined,
-    };
-    (async () => {
-      try {
-        const res = await fetch('/api/ai/tips', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile, trips })
-        });
-        const data = await res.json();
-        setState({ tips: data.tips || [], loading: false });
-      } catch {
-        setState({ tips: [], loading: false });
+  const buildProfile = () => ({
+    citizenship: localStorage.getItem('nomaddays_citizenship') || undefined,
+    residenceCountry: localStorage.getItem('nomaddays_residence') || undefined,
+    residencePermitType: localStorage.getItem('nomaddays_permit_type') || undefined,
+    residencePermitStart: localStorage.getItem('nomaddays_permit_start') || undefined,
+    residencePermitEnd: localStorage.getItem('nomaddays_permit_end') || undefined,
+  });
+
+  const hash = (s: string) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return String(h >>> 0);
+  };
+
+  const loadTips = async (force = false) => {
+    setState((prev) => ({ ...prev, loading: true }));
+    const profile = buildProfile();
+    const keyPayload = JSON.stringify({ profile, trips });
+    const cacheKey = `ai_tips_${hash(keyPayload)}`;
+    if (!force) {
+      const cached = localStorage.getItem(cacheKey);
+      const ts = localStorage.getItem(cacheKey + '_ts');
+      if (cached && ts && Date.now() - Number(ts) < 24 * 60 * 60 * 1000) {
+        setState({ tips: JSON.parse(cached), loading: false });
+        return;
       }
-    })();
-  }, [trips]);
+    }
+    try {
+      const res = await fetch('/api/ai/tips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile, trips })
+      });
+      const data = await res.json();
+      const tips: string[] = data.tips || [];
+      setState({ tips, loading: false });
+      localStorage.setItem(cacheKey, JSON.stringify(tips));
+      localStorage.setItem(cacheKey + '_ts', String(Date.now()));
+    } catch {
+      setState({ tips: [], loading: false });
+    }
+  };
+
+  useEffect(() => {
+    loadTips();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(trips)]);
 
   return (
     <div className="mb-6 px-4">
@@ -52,6 +77,9 @@ export default function AITips({ trips }: Props) {
             ))}
           </ul>
         )}
+        <div className="mt-3">
+          <button className="btn btn-secondary" onClick={() => loadTips(true)}>Обновить подсказки</button>
+        </div>
       </div>
     </div>
   );
