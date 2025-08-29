@@ -11,7 +11,6 @@ export default function Navigation() {
     { href: '/trips', label: 'Поездки', icon: '📍' },
     { href: '/planner', label: 'Планировщик', icon: '📅' },
     { href: '/rules', label: 'Правила', icon: '⭐' },
-    { href: '/import', label: 'Импорт', icon: '📥' },
   ];
 
   return (

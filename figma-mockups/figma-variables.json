@@ -1,0 +1,119 @@
+{
+  "variables": {
+    "colors": {
+      "bg": {
+        "light": "#ffffff",
+        "dark": "#1c1c1e",
+        "description": "Основной фон приложения"
+      },
+      "surface": {
+        "light": "#f7f6f3",
+        "dark": "#2c2c2e",
+        "description": "Фон карточек и элементов"
+      },
+      "text": {
+        "light": "#37352f",
+        "dark": "#ffffff",
+        "description": "Основной текст"
+      },
+      "text-secondary": {
+        "light": "#787774",
+        "dark": "#a0a0a0",
+        "description": "Вторичный текст и подписи"
+      },
+      "border": {
+        "light": "#e9e8e6",
+        "dark": "#3a3a3c",
+        "description": "Границы элементов"
+      },
+      "hover": {
+        "light": "#f1f1ef",
+        "dark": "#3a3a3c",
+        "description": "Состояние при наведении"
+      },
+      "brand": {
+        "light": "#2eaadc",
+        "dark": "#0a84ff",
+        "description": "Основной бренд-цвет"
+      },
+      "brand-hover": {
+        "light": "#1ea7d4",
+        "dark": "#30a4ff",
+        "description": "Бренд-цвет при наведении"
+      },
+      "red": {
+        "light": "#ef5350",
+        "dark": "#ff453a",
+        "description": "Ошибки, риски, удаление"
+      },
+      "green": {
+        "light": "#4caf50",
+        "dark": "#30d158",
+        "description": "Успех, статус, подтверждение"
+      },
+      "orange": {
+        "light": "#ff9800",
+        "dark": "#ff9f0a",
+        "description": "Предупреждения, внимание"
+      }
+    },
+    "typography": {
+      "font-family": {
+        "value": "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif",
+        "description": "Основное семейство шрифтов"
+      },
+      "font-sizes": {
+        "title": "24px",
+        "subtitle": "18px",
+        "body": "16px",
+        "small": "14px",
+        "caption": "12px",
+        "description": "Размеры шрифтов для разных уровней"
+      },
+      "font-weights": {
+        "bold": "700",
+        "medium": "500",
+        "regular": "400",
+        "description": "Толщина шрифтов"
+      }
+    },
+    "spacing": {
+      "base-unit": "4px",
+      "padding": "16px",
+      "margin": "16px",
+      "description": "Базовые единицы отступов"
+    },
+    "border-radius": {
+      "card": "16px",
+      "input": "12px",
+      "button": "9999px",
+      "description": "Радиусы скругления для разных элементов"
+    },
+    "sizes": {
+      "button-height": "44px",
+      "button-height-large": "48px",
+      "input-height": "44px",
+      "icon-size": "24px",
+      "icon-size-large": "48px",
+      "description": "Стандартные размеры элементов"
+    }
+  },
+  "modes": {
+    "light": {
+      "description": "Светлая тема (по умолчанию)"
+    },
+    "dark": {
+      "description": "Темная тема"
+    }
+  },
+  "collections": {
+    "semantic": {
+      "description": "Семантические цвета для разных состояний",
+      "variables": ["success", "warning", "error", "info"]
+    },
+    "component": {
+      "description": "Цвета для конкретных компонентов",
+      "variables": ["button-primary", "button-secondary", "card-background", "input-background"]
+    }
+  }
+}
