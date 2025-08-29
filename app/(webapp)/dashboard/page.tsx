@@ -121,6 +121,7 @@ export default function DashboardPage() {
 
   // Дней до окончания статуса (РВП/ВНЖ/туристический)
   const [daysUntilPermitEnd, setDaysUntilPermitEnd] = useState<{ diff: number; type: string } | null>(null);
+  const [outsideDaysLeft, setOutsideDaysLeft] = useState<number | null>(null);
   useEffect(() => {
     try {
       const endStr = typeof window !== 'undefined' ? localStorage.getItem('nomaddays_permit_end') : null;
@@ -132,6 +133,9 @@ export default function DashboardPage() {
       setDaysUntilPermitEnd({ diff, type });
     } catch {}
   }, []);
+
+  // Остаток дней вне страны (для резиденства РК — не более 182 дней вне страны в 365)
+  // вычисляем после расчёта countryDaysLast12m
 
   // Дни по странам за последние 12 месяцев
   const countryDaysLast12m = useMemo(() => {
@@ -168,6 +172,14 @@ export default function DashboardPage() {
       return sum;
     }, 0);
     return Math.max(0, windowDays - outside);
+  }, [countryDaysLast12m, residenceCode]);
+
+  useEffect(() => {
+    const totalOutside = countryDaysLast12m.reduce((sum, row) => {
+      if (!residenceCode || row.code === residenceCode) return sum;
+      return sum + row.days;
+    }, 0);
+    setOutsideDaysLeft(Math.max(0, 182 - totalOutside));
   }, [countryDaysLast12m, residenceCode]);
 
   // Подготовка данных для месячной диаграммы: {month: '2025-01', KZ: 10, TH: 20, ...}
@@ -217,7 +229,10 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[var(--surface)]">
       {/* Header */}
       <div className="bg-[var(--bg)] border-b border-[var(--border)] p-4 mb-6">
-        <h1 className="text-2xl font-bold text-[var(--text)] mb-2">NomadDays</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[var(--text)] mb-2">NomadDays</h1>
+          <Link href="/about" className="text-[var(--brand)] underline">О приложении</Link>
+        </div>
         <p className="text-[var(--text-secondary)]">Отслеживайте дни по странам</p>
       </div>
 
@@ -253,6 +268,12 @@ export default function DashboardPage() {
           <div className="text-sm mt-2 text-[var(--text-secondary)]">
             Дней в стране ВНЖ/РВП за 12 мес:
             <span className="ml-1 font-semibold text-[var(--text)]">{daysInResidenceLast12m}</span>
+          </div>
+        )}
+        {outsideDaysLeft !== null && (
+          <div className="text-sm mt-2 text-[var(--text-secondary)]">
+            Остаток дней вне страны (лимит 182/365):
+            <span className="ml-1 font-semibold text-[var(--text)]">{outsideDaysLeft}</span>
           </div>
         )}
       </div>
@@ -329,17 +350,6 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
-          <button onClick={handleResetProfile} className="card block w-full text-left hover:border-[var(--brand)] transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[var(--red)] rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">↺</span>
-              </div>
-              <div>
-                <div className="font-semibold text-[var(--text)]">Сбросить профиль</div>
-                <div className="text-sm text-[var(--text-secondary)]">Очистить данные и начать заново</div>
-              </div>
-            </div>
-          </button>
         </div>
       </div>
 
@@ -387,6 +397,21 @@ export default function DashboardPage() {
         onComplete={handleOnboardingComplete}
         onSkip={handleOnboardingSkip}
       />
+
+      {/* Reset Profile Button at bottom */}
+      <div className="px-4 mb-24">
+        <button onClick={handleResetProfile} className="card block w-full text-left hover:border-[var(--brand)] transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[var(--red)] rounded-full flex items-center justify-center">
+              <span className="text-white text-lg">↺</span>
+            </div>
+            <div>
+              <div className="font-semibold text-[var(--text)]">Сбросить профиль</div>
+              <div className="text-sm text-[var(--text-secondary)]">Очистить данные и начать заново</div>
+            </div>
+          </div>
+        </button>
+      </div>
 
       {/* Navigation */}
       <Navigation />
