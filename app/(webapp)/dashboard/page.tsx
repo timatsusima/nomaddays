@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [trips, setTrips] = useState<any[]>([]);
   const [rules, setRules] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [residenceCode, setResidenceCode] = useState<string>('');
 
   useEffect(() => {
     loadInitialData();
@@ -26,6 +27,8 @@ export default function DashboardPage() {
     if (!hasCompletedOnboarding) {
       setShowOnboarding(true);
     }
+    const rc = localStorage.getItem('nomaddays_residence') || '';
+    setResidenceCode(rc);
   }, []);
 
   const loadInitialData = async () => {
@@ -157,6 +160,16 @@ export default function DashboardPage() {
       .sort((a, b) => b.days - a.days);
   }, [trips]);
 
+  // Дни в стране ВНЖ/РВП за последние 12 месяцев = дни в окне - дни поездок не в стране ВНЖ
+  const daysInResidenceLast12m = useMemo(() => {
+    const windowDays = 365;
+    const outside = countryDaysLast12m.reduce((sum, row) => {
+      if (!residenceCode || row.code !== residenceCode) return sum + row.days;
+      return sum;
+    }, 0);
+    return Math.max(0, windowDays - outside);
+  }, [countryDaysLast12m, residenceCode]);
+
   // Подготовка данных для месячной диаграммы: {month: '2025-01', KZ: 10, TH: 20, ...}
   const monthlyByCountry = useMemo(() => {
     const map = new Map<string, Record<string, number>>();
@@ -234,6 +247,12 @@ export default function DashboardPage() {
           <div className="text-sm mt-2 text-[var(--text-secondary)]">
             Дней до окончания {daysUntilPermitEnd.type === 'RVP' ? 'РВП' : daysUntilPermitEnd.type === 'VNZH' ? 'ВНЖ' : 'статуса'}:
             <span className="ml-1 font-semibold text-[var(--text)]">{Math.max(0, daysUntilPermitEnd.diff)}</span>
+          </div>
+        )}
+        {residenceCode && (
+          <div className="text-sm mt-2 text-[var(--text-secondary)]">
+            Дней в стране ВНЖ/РВП за 12 мес:
+            <span className="ml-1 font-semibold text-[var(--text)]">{daysInResidenceLast12m}</span>
           </div>
         )}
       </div>
