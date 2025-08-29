@@ -7,7 +7,7 @@ import { ForecastRequest, RuleParams, Trip } from '@/core/rules/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { plannedTrip, userId }: ForecastRequest = await request.json();
+    const { plannedTrip, userId, residenceCountry }: ForecastRequest = await request.json();
 
     if (!plannedTrip || !userId) {
       return NextResponse.json(

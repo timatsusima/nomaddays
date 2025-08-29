@@ -1,18 +1,18 @@
 import { RuleParams } from './types';
 
 export const RULE_PRESETS: Record<string, RuleParams> = {
-  // TODO: Настроить актуальные лимиты для Казахстана
+  // Казахстан (резидентство)
   KZ_RESIDENCY_TEST: {
     name: 'Тест резиденции РК',
-    description: 'Максимум дней вне Казахстана для сохранения налогового резидентства',
-    maxDaysOutside: 183, // TODO: Уточнить актуальное значение
-    calendarYear: true,
-    rolling12Months: false
+    description: 'Не более 182 дней вне Казахстана за скользящие 12 месяцев',
+    maxDaysOutside: 182,
+    calendarYear: false,
+    rolling12Months: true
   },
 
   KZ_RESIDENCY_MIN_STAY: {
     name: 'Минимум 183 дня в РК',
-    description: 'Требование РВП/ВНЖ: находиться в РК не менее 183 дней в календарном году',
+    description: 'Требование РВП/ВНЖ: находиться в РК не менее 183 дней за календарный год',
     minDaysInCountry: 183,
     countryCode: 'KZ',
     calendarYear: true
@@ -71,6 +71,11 @@ export const getDefaultRuleProfiles = (): Array<{ key: string; params: RuleParam
     {
       key: 'KZ_RESIDENCY_TEST',
       params: RULE_PRESETS.KZ_RESIDENCY_TEST,
+      enabled: true
+    },
+    {
+      key: 'KZ_RESIDENCY_MIN_STAY',
+      params: RULE_PRESETS.KZ_RESIDENCY_MIN_STAY,
       enabled: true
     },
     {

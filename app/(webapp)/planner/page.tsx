@@ -34,10 +34,11 @@ const PlannerPage = () => {
   const handleDateSelection = async (dates: DateRange) => {
     setSelectedDates(dates);
     try {
+      const residenceCountry = typeof window !== 'undefined' ? localStorage.getItem('nomaddays_residence') : undefined;
       const res = await fetch('/api/compute/forecast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plannedTrip: dates, userId: 'test-user-123' })
+        body: JSON.stringify({ plannedTrip: dates, userId: 'test-user-123', residenceCountry })
       });
       if (!res.ok) throw new Error('Failed to compute forecast');
       const data = await res.json();

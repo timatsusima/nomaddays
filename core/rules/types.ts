@@ -75,6 +75,7 @@ export interface RuleResult {
 export interface ForecastRequest {
   plannedTrip: DateRange;
   userId: string;
+  residenceCountry?: string;
 }
 
 export interface ForecastResult {
