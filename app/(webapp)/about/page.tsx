@@ -290,15 +290,30 @@ export default function AboutPage() {
         </div>
       )}
 
-      {/* Toast banner above nav */}
+      {/* Toast banner redesigned */}
       {toast && (
-        <div className="fixed left-4 right-4 bottom-24 sm:bottom-24 z-[60]">
-          <div className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl shadow-md p-4 flex items-start gap-3">
-            <div className="flex-1">
-              <div className="font-semibold text-[var(--text)] mb-1">{toast.title}</div>
-              <div className="text-sm text-[var(--text-secondary)]">{toast.message}</div>
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[60]">
+          <div className="relative w-[326px] h-[144px] rounded-2xl overflow-hidden shadow-xl">
+            <img
+              src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop"
+              alt="space"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/45" />
+            <button
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center"
+              onClick={() => setToast(null)}
+              aria-label="Закрыть"
+            >
+              ×
+            </button>
+            <div className="relative h-full w-full flex flex-row items-start gap-5 p-4">
+              <div className="flex-1">
+                <div className="text-white text-xl font-semibold mb-1">{toast.title}</div>
+                <div className="text-white/85 text-sm leading-snug">{toast.message}</div>
+              </div>
+              <button onClick={() => setToast(null)} className="bg-white text-black px-4 py-2 rounded-full text-base font-medium self-start">Ок</button>
             </div>
-            <button onClick={() => setToast(null)} className="btn-secondary px-4 py-2 rounded-full">Ок</button>
           </div>
         </div>
       )}
