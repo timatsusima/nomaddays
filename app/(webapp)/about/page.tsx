@@ -38,9 +38,9 @@ export default function AboutPage() {
       <main className="px-4 pt-6">
         {/* Hero */}
         <div className="text-center mb-6">
-          <div className="w-28 h-28 mx-auto mb-2 flex items-center justify-center">
+          <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 mx-auto mb-3 flex items-center justify-center">
             {animationData ? (
-              <Lottie animationData={animationData} loop autoplay />
+              <Lottie animationData={animationData} loop autoplay style={{ width: '100%', height: '100%' }} />
             ) : (
               <div className="text-6xl">🚀</div>
             )}
