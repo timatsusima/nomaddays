@@ -2,15 +2,11 @@
 
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
-import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
-
-const Lottie: any = dynamic(() => import('lottie-react').then(m => m.default), { ssr: false });
 
 const TG_BOT = process.env.NEXT_PUBLIC_TG_BOT || 'nomaddays_support_bot';
 
 export default function AboutPage() {
-  const [animationData, setAnimationData] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState<false | 'issue' | 'improve'>(false);
   const [message, setMessage] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -20,15 +16,6 @@ export default function AboutPage() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    let ignore = false;
-    fetch('/animations/splash_screen.json')
-      .then((res) => res.json())
-      .then((data) => { if (!ignore) setAnimationData(data); })
-      .catch(() => { /* fallback оставим пустым */ });
-    return () => { ignore = true; };
-  }, []);
 
   const releaseNotes = useMemo(() => [
     {
@@ -121,18 +108,8 @@ export default function AboutPage() {
       </header>
 
       <main className="px-4 pt-6">
-        {/* Hero: full-bleed Lottie */}
+        {/* Hero (без анимации) */}
         <div className="text-center mb-6">
-          <div
-            className="mx-auto mb-3"
-            style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', height: '220px' }}
-          >
-            {animationData ? (
-              <Lottie animationData={animationData} loop autoplay style={{ width: '100%', height: '100%' }} />
-            ) : (
-              <div className="text-6xl">🚀</div>
-            )}
-          </div>
           <div className="mt-2 text-[var(--text-secondary)]">AI-помощник для digital-номадов</div>
           <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg)] text-xs text-[var(--text-secondary)]">
             Версия 1.0.0
@@ -290,18 +267,12 @@ export default function AboutPage() {
         </div>
       )}
 
-      {/* Toast banner redesigned */}
+      {/* Toast banner redesigned (без бэкграунд‑картинки) */}
       {toast && (
         <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[60]">
-          <div className="relative w-[326px] h-[144px] rounded-2xl overflow-hidden shadow-xl">
-            <img
-              src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop"
-              alt="space"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/45" />
+          <div className="relative w-[326px] h-[144px] rounded-2xl overflow-hidden shadow-xl bg-[#0f1216] border border-[var(--border)]">
             <button
-              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center"
+              className="absolute top-2 right-2 w-10 h-10 text-2xl rounded-full bg-black/30 text-white flex items-center justify-center"
               onClick={() => setToast(null)}
               aria-label="Закрыть"
             >
