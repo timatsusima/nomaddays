@@ -2,8 +2,23 @@
 
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
+
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
 
 export default function AboutPage() {
+  const [animationData, setAnimationData] = useState<any>(null);
+
+  useEffect(() => {
+    let ignore = false;
+    fetch('/animations/splash_screen.json')
+      .then((res) => res.json())
+      .then((data) => { if (!ignore) setAnimationData(data); })
+      .catch(() => { /* fallback оставим пустым */ });
+    return () => { ignore = true; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[var(--surface)] pb-24">
       {/* Header */}
@@ -23,7 +38,14 @@ export default function AboutPage() {
       <main className="px-4 pt-6">
         {/* Hero */}
         <div className="text-center mb-6">
-          <div className="text-6xl mb-2">🚀</div>
+          <div className="w-28 h-28 mx-auto mb-2 flex items-center justify-center">
+            {animationData ? (
+              // @ts-expect-error: lottie-react dynamic import type
+              <Lottie animationData={animationData} loop autoplay />
+            ) : (
+              <div className="text-6xl">🚀</div>
+            )}
+          </div>
           <div className="text-3xl font-bold text-[var(--brand)]">n0mad_days</div>
           <div className="mt-2 text-[var(--text-secondary)]">AI-помощник для digital-номадов</div>
           <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg)] text-xs text-[var(--text-secondary)]">
