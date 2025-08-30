@@ -5,7 +5,7 @@ import Navigation from '@/components/Navigation';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
-const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+const Lottie: any = dynamic(() => import('lottie-react').then(m => m.default), { ssr: false });
 
 export default function AboutPage() {
   const [animationData, setAnimationData] = useState<any>(null);
@@ -40,7 +40,6 @@ export default function AboutPage() {
         <div className="text-center mb-6">
           <div className="w-28 h-28 mx-auto mb-2 flex items-center justify-center">
             {animationData ? (
-              // @ts-expect-error: lottie-react dynamic import type
               <Lottie animationData={animationData} loop autoplay />
             ) : (
               <div className="text-6xl">🚀</div>
