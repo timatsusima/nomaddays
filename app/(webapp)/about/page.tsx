@@ -13,6 +13,7 @@ export default function AboutPage() {
   const [animationData, setAnimationData] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState<false | 'issue' | 'improve'>(false);
   const [message, setMessage] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -38,37 +39,50 @@ export default function AboutPage() {
     }
   ], []);
 
+  const getTelegramUser = () => {
+    try {
+      const wa = (window as any).Telegram?.WebApp;
+      const u = wa?.initDataUnsafe?.user;
+      if (!u) return null;
+      return { id: u.id, firstName: u.first_name, lastName: u.last_name, username: u.username };
+    } catch { return null; }
+  };
+
   const handleOpenChat = (preset: 'issue' | 'improve') => {
-    // Сначала откроем наше модальное окно
     setIsModalOpen(preset);
   };
 
   const submitFeedback = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() && !file) return;
     try {
       setSending(true);
+
+      if (file) {
+        const fd = new FormData();
+        fd.append('type', isModalOpen === 'issue' ? 'issue' : 'improve');
+        fd.append('message', message);
+        fd.append('url', typeof window !== 'undefined' ? window.location.href : '');
+        fd.append('ua', typeof navigator !== 'undefined' ? navigator.userAgent : '');
+        const user = getTelegramUser();
+        if (user) fd.append('user', JSON.stringify(user));
+        fd.append('file', file);
+        const res = await fetch('/api/support/send', { method: 'POST', body: fd });
+        if (res.ok) { setSent(true); setMessage(''); setFile(null); return; }
+      }
+
+      // Без файла — JSON
       const res = await fetch('/api/support/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: isModalOpen === 'issue' ? 'issue' : 'improve',
           message,
+          user: getTelegramUser() || undefined,
           url: typeof window !== 'undefined' ? window.location.href : undefined,
           ua: typeof navigator !== 'undefined' ? navigator.userAgent : undefined
         })
       });
-      if (res.ok) {
-        setSent(true);
-        setMessage('');
-      } else {
-        // fallback — откроем чат бота
-        const tgLink = `https://t.me/${TG_BOT}?start=${encodeURIComponent(isModalOpen || 'issue')}`;
-        if ((window as any).Telegram?.WebApp?.openTelegramLink) {
-          (window as any).Telegram.WebApp.openTelegramLink(tgLink);
-        } else {
-          window.location.href = tgLink;
-        }
-      }
+      if (res.ok) { setSent(true); setMessage(''); }
     } finally {
       setSending(false);
     }
@@ -232,9 +246,10 @@ export default function AboutPage() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Опишите проблему или идею..."
-                  className="w-full h-32 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] mb-3"
+                  className="w-full h-28 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] mb-3"
                 />
-                <button onClick={submitFeedback} disabled={sending || !message.trim()} className="btn w-full">
+                <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] || null)} className="w-full mb-3 text-sm" />
+                <button onClick={submitFeedback} disabled={sending || (!message.trim() && !file)} className="btn w-full">
                   {sending ? 'Отправка...' : 'Отправить'}
                 </button>
               </>
