@@ -11,6 +11,10 @@ const TG_BOT = process.env.NEXT_PUBLIC_TG_BOT || 'nomaddays_support_bot';
 
 export default function AboutPage() {
   const [animationData, setAnimationData] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState<false | 'issue' | 'improve'>(false);
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -35,16 +39,39 @@ export default function AboutPage() {
   ], []);
 
   const handleOpenChat = (preset: 'issue' | 'improve') => {
-    const text = preset === 'issue' ? 'Сообщение об ошибке:' : 'Предложение улучшения:';
-    const tgLink = `https://t.me/${TG_BOT}?start=${encodeURIComponent(preset)}`;
+    // Сначала откроем наше модальное окно
+    setIsModalOpen(preset);
+  };
 
-    // Если в Telegram WebApp — откроем встроенную ссылку
-    if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.openTelegramLink) {
-      (window as any).Telegram.WebApp.openTelegramLink(tgLink);
-      return;
+  const submitFeedback = async () => {
+    if (!message.trim()) return;
+    try {
+      setSending(true);
+      const res = await fetch('/api/support/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: isModalOpen === 'issue' ? 'issue' : 'improve',
+          message,
+          url: typeof window !== 'undefined' ? window.location.href : undefined,
+          ua: typeof navigator !== 'undefined' ? navigator.userAgent : undefined
+        })
+      });
+      if (res.ok) {
+        setSent(true);
+        setMessage('');
+      } else {
+        // fallback — откроем чат бота
+        const tgLink = `https://t.me/${TG_BOT}?start=${encodeURIComponent(isModalOpen || 'issue')}`;
+        if ((window as any).Telegram?.WebApp?.openTelegramLink) {
+          (window as any).Telegram.WebApp.openTelegramLink(tgLink);
+        } else {
+          window.location.href = tgLink;
+        }
+      }
+    } finally {
+      setSending(false);
     }
-    // Фолбэк: письмо
-    window.location.href = `mailto:support@nomaddays.app?subject=${encodeURIComponent(text)}&body=${encodeURIComponent('\n\n(опишите проблему/идею)')}`;
   };
 
   return (
@@ -76,7 +103,6 @@ export default function AboutPage() {
               <div className="text-6xl">🚀</div>
             )}
           </div>
-          {/* Убрали название n0mad_days под анимацией */}
           <div className="mt-2 text-[var(--text-secondary)]">AI-помощник для digital-номадов</div>
           <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg)] text-xs text-[var(--text-secondary)]">
             Версия 1.0.0
@@ -187,6 +213,35 @@ export default function AboutPage() {
           Сделано с <span className="text-[var(--red)]">❤</span> для digital-номадов
         </div>
       </main>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center">
+          <div className="w-full sm:w-[520px] bg-[var(--bg)] rounded-t-2xl sm:rounded-2xl p-4 border border-[var(--border)]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-base font-semibold">{isModalOpen === 'issue' ? 'Сообщить об ошибке' : 'Предложить улучшение'}</div>
+              <button onClick={() => { setIsModalOpen(false); setSent(false); }} className="w-9 h-9 rounded-full hover:bg-[var(--hover)]">✕</button>
+            </div>
+            {sent ? (
+              <div className="text-sm text-[var(--text-secondary)]">
+                Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами при необходимости.
+              </div>
+            ) : (
+              <>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Опишите проблему или идею..."
+                  className="w-full h-32 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] mb-3"
+                />
+                <button onClick={submitFeedback} disabled={sending || !message.trim()} className="btn w-full">
+                  {sending ? 'Отправка...' : 'Отправить'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <Navigation />
     </div>
