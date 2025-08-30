@@ -5,6 +5,13 @@ import { resolveCountryName } from '@/lib/countries';
 // Временный userId для тестирования
 const TEST_USER_ID = 'test-user-123';
 
+// Заголовки для отключения кеширования
+const noCacheHeaders = {
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
 // GET /api/trips - получить все поездки пользователя
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +27,7 @@ export async function GET(request: NextRequest) {
     });
 
     console.log('Found trips:', trips.length);
-    return NextResponse.json(trips);
+    return NextResponse.json(trips, { headers: noCacheHeaders });
   } catch (error) {
     console.error('Error fetching trips:', error);
     return NextResponse.json(
