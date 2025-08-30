@@ -36,16 +36,19 @@ export default function AboutPage() {
       </header>
 
       <main className="px-4 pt-6">
-        {/* Hero */}
+        {/* Hero: full-bleed Lottie */}
         <div className="text-center mb-6">
-          <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 mx-auto mb-3 flex items-center justify-center">
+          <div
+            className="mx-auto mb-3"
+            style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', height: '220px' }}
+          >
             {animationData ? (
               <Lottie animationData={animationData} loop autoplay style={{ width: '100%', height: '100%' }} />
             ) : (
               <div className="text-6xl">🚀</div>
             )}
           </div>
-          <div className="text-3xl font-bold text-[var(--brand)]">n0mad_days</div>
+          {/* Убрали название n0mad_days под анимацией */}
           <div className="mt-2 text-[var(--text-secondary)]">AI-помощник для digital-номадов</div>
           <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg)] text-xs text-[var(--text-secondary)]">
             Версия 1.0.0
