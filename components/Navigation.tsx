@@ -1,4 +1,4 @@
-// Navigation Component v2.0 - Import removed
+// Navigation Component v2.1 - Import removed (Updated: 2024-08-27 21:20)
 'use client';
 
 import Link from 'next/link';
