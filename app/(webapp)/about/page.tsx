@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const Lottie: any = dynamic(() => import('lottie-react').then(m => m.default), { ssr: false });
+
+const TG_BOT = process.env.NEXT_PUBLIC_TG_BOT || 'nomaddays_support_bot';
 
 export default function AboutPage() {
   const [animationData, setAnimationData] = useState<any>(null);
@@ -18,6 +20,32 @@ export default function AboutPage() {
       .catch(() => { /* fallback оставим пустым */ });
     return () => { ignore = true; };
   }, []);
+
+  const releaseNotes = useMemo(() => [
+    {
+      version: '1.0.0',
+      date: '2025‑08‑30',
+      items: [
+        'Страница «О приложении» в iOS‑стиле',
+        'Новый сплеш‑экран (Lottie) и full‑bleed баннер',
+        'Удалён пункт «Импорт», стабильная нижняя навигация',
+        'Синхронизация дизайн‑токенов (цвета, шрифты SF Pro)'
+      ]
+    }
+  ], []);
+
+  const handleOpenChat = (preset: 'issue' | 'improve') => {
+    const text = preset === 'issue' ? 'Сообщение об ошибке:' : 'Предложение улучшения:';
+    const tgLink = `https://t.me/${TG_BOT}?start=${encodeURIComponent(preset)}`;
+
+    // Если в Telegram WebApp — откроем встроенную ссылку
+    if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.openTelegramLink) {
+      (window as any).Telegram.WebApp.openTelegramLink(tgLink);
+      return;
+    }
+    // Фолбэк: письмо
+    window.location.href = `mailto:support@nomaddays.app?subject=${encodeURIComponent(text)}&body=${encodeURIComponent('\n\n(опишите проблему/идею)')}`;
+  };
 
   return (
     <div className="min-h-screen bg-[var(--surface)] pb-24">
@@ -124,14 +152,19 @@ export default function AboutPage() {
           </ul>
         </section>
 
-        {/* Основные возможности */}
+        {/* Последние улучшения */}
         <section className="card mb-4">
-          <h2 className="card-title">Основные возможности</h2>
-          <div className="grid grid-cols-2 gap-y-3 text-sm">
-            {['Учёт поездок','Планировщик','Визовые правила','Уведомления','ИИ-анализ','Статистика'].map((item) => (
-              <div key={item} className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[var(--brand)]"></span>
-                <span>{item}</span>
+          <h2 className="card-title">Последние улучшения</h2>
+          <div className="space-y-4">
+            {releaseNotes.map((rel) => (
+              <div key={rel.version} className="rounded-lg border border-[var(--border)] p-3 bg-[var(--bg)]">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-semibold">v{rel.version}</div>
+                  <div className="text-xs text-[var(--text-secondary)]">{rel.date}</div>
+                </div>
+                <ul className="list-disc pl-5 text-sm text-[var(--text-secondary)] space-y-1">
+                  {rel.items.map((i, idx) => <li key={idx}>{i}</li>)}
+                </ul>
               </div>
             ))}
           </div>
@@ -144,8 +177,8 @@ export default function AboutPage() {
             Нашли ошибку или есть предложения по улучшению? Мы будем рады вашей обратной связи!
           </p>
           <div className="flex flex-col gap-3">
-            <Link href="#" className="btn w-full text-center">Сообщить об ошибке</Link>
-            <Link href="#" className="btn-secondary w-full text-center rounded-full py-3">Предложить улучшение</Link>
+            <button onClick={() => handleOpenChat('issue')} className="btn w-full text-center">Сообщить об ошибке</button>
+            <button onClick={() => handleOpenChat('improve')} className="btn-secondary w-full text-center rounded-full py-3">Предложить улучшение</button>
           </div>
         </section>
 
