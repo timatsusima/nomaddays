@@ -216,7 +216,7 @@ export default function AboutPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center">
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center sm:justify-center">
           <div className="w-full sm:w-[520px] bg-[var(--bg)] rounded-t-2xl sm:rounded-2xl p-4 border border-[var(--border)]">
             <div className="flex items-center justify-between mb-3">
               <div className="text-base font-semibold">{isModalOpen === 'issue' ? 'Сообщить об ошибке' : 'Предложить улучшение'}</div>
