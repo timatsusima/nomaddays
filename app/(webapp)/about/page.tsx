@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import dynamic from 'next/dynamic';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const Lottie: any = dynamic(() => import('lottie-react').then(m => m.default), { ssr: false });
 
@@ -16,6 +16,9 @@ export default function AboutPage() {
   const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -87,6 +90,9 @@ export default function AboutPage() {
       setSending(false);
     }
   };
+
+  const openGallery = () => fileInputRef.current?.click();
+  const openCamera = () => cameraInputRef.current?.click();
 
   return (
     <div className="min-h-screen bg-[var(--surface)] pb-24">
@@ -248,7 +254,23 @@ export default function AboutPage() {
                   placeholder="Опишите проблему или идею..."
                   className="w-full h-28 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] mb-3"
                 />
-                <input type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] || null)} className="w-full mb-3 text-sm" />
+
+                {/* Attach actions */}
+                <div className="flex items-center gap-2 mb-3">
+                  <button type="button" onClick={openGallery} className="px-3 py-2 rounded-full border border-[var(--border)] bg-[var(--bg)] text-sm">📎 Из галереи</button>
+                  <button type="button" onClick={openCamera} className="px-3 py-2 rounded-full border border-[var(--border)] bg-[var(--bg)] text-sm">📷 Камера</button>
+                  {file && (
+                    <div className="ml-auto text-xs text-[var(--text-secondary)] flex items-center gap-2">
+                      <span className="truncate max-w-[140px]">{file.name}</span>
+                      <button onClick={() => setFile(null)} className="px-2 py-1 rounded-full border border-[var(--border)]">×</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Hidden inputs */}
+                <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={(e) => setFile(e.target.files?.[0] || null)} className="hidden" />
+                <input ref={cameraInputRef} type="file" accept="image/*,video/*" capture="environment" onChange={(e) => setFile(e.target.files?.[0] || null)} className="hidden" />
+
                 <button onClick={submitFeedback} disabled={sending || (!message.trim() && !file)} className="btn w-full">
                   {sending ? 'Отправка...' : 'Отправить'}
                 </button>
