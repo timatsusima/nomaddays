@@ -71,8 +71,7 @@ export async function POST(req: NextRequest) {
       tgForm.append('chat_id', SUPPORT_CHAT_ID);
       tgForm.append('caption', caption);
       tgForm.append('parse_mode', 'HTML');
-      // @ts-ignore Node18 supports File in FormData
-      tgForm.append(field, file, (file as any).name || 'attachment');
+      tgForm.append(field, file as unknown as Blob);
 
       const uploadUrl = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
       const upRes = await fetch(uploadUrl, { method: 'POST', body: tgForm });
