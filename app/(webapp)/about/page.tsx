@@ -16,6 +16,7 @@ export default function AboutPage() {
   const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [toast, setToast] = useState<{ title: string; message: string } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -70,7 +71,12 @@ export default function AboutPage() {
         if (user) fd.append('user', JSON.stringify(user));
         fd.append('file', file);
         const res = await fetch('/api/support/send', { method: 'POST', body: fd });
-        if (res.ok) { setSent(true); setMessage(''); setFile(null); return; }
+        if (res.ok) {
+          setSent(true); setMessage(''); setFile(null);
+          setIsModalOpen(false);
+          setToast({ title: 'Сообщение отправлено', message: 'Спасибо! Мы свяжемся с вами при необходимости.' });
+          return;
+        }
       }
 
       // Без файла — JSON
@@ -85,7 +91,11 @@ export default function AboutPage() {
           ua: typeof navigator !== 'undefined' ? navigator.userAgent : undefined
         })
       });
-      if (res.ok) { setSent(true); setMessage(''); }
+      if (res.ok) {
+        setSent(true); setMessage('');
+        setIsModalOpen(false);
+        setToast({ title: 'Сообщение отправлено', message: 'Спасибо! Мы свяжемся с вами при необходимости.' });
+      }
     } finally {
       setSending(false);
     }
@@ -276,6 +286,19 @@ export default function AboutPage() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Toast banner above nav */}
+      {toast && (
+        <div className="fixed left-4 right-4 bottom-24 sm:bottom-24 z-[60]">
+          <div className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl shadow-md p-4 flex items-start gap-3">
+            <div className="flex-1">
+              <div className="font-semibold text-[var(--text)] mb-1">{toast.title}</div>
+              <div className="text-sm text-[var(--text-secondary)]">{toast.message}</div>
+            </div>
+            <button onClick={() => setToast(null)} className="btn-secondary px-4 py-2 rounded-full">Ок</button>
           </div>
         </div>
       )}
