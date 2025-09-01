@@ -17,11 +17,11 @@ export function CustomCard({
   interactive = false 
 }: CustomCardProps) {
   const variants = {
-    default: "bg-surface border-border hover:bg-hover",
-    brand: "bg-brand/5 border-brand/20 hover:bg-brand/10",
-    warning: "bg-yellow/5 border-yellow/20 hover:bg-yellow/10",
-    danger: "bg-red/5 border-red/20 hover:bg-red/10",
-    success: "bg-green/5 border-green/20 hover:bg-green/10",
+    default: "bg-[var(--surface)] border-[var(--border)] hover:bg-[var(--hover)]",
+    brand: "bg-[var(--brand)]/5 border-[var(--brand)]/20 hover:bg-[var(--brand)]/10",
+    warning: "bg-[var(--yellow)]/5 border-[var(--yellow)]/20 hover:bg-[var(--yellow)]/10",
+    danger: "bg-[var(--red)]/5 border-[var(--red)]/20 hover:bg-[var(--red)]/10",
+    success: "bg-[var(--green)]/5 border-[var(--green)]/20 hover:bg-[var(--green)]/10",
   };
 
   const cardClasses = `

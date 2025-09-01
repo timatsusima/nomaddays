@@ -31,9 +31,9 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
   const currentXRef = useRef(0);
 
   const statusColors = {
-    completed: "bg-green/10 text-green border-green/20",
-    ongoing: "bg-brand/10 text-brand border-brand/20", 
-    planned: "bg-yellow/10 text-yellow border-yellow/20"
+    completed: "bg-[var(--green)]/10 text-[var(--green)] border-[var(--green)]/20",
+    ongoing: "bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/20", 
+    planned: "bg-[var(--yellow)]/10 text-[var(--yellow)] border-[var(--yellow)]/20"
   };
 
   const statusLabels = {
@@ -145,11 +145,11 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
       <div className="absolute inset-0 flex">
         {/* Edit action (right side) */}
         <div 
-          className={`w-24 flex items-center justify-center bg-brand/20 transition-opacity duration-200 ${
+          className={`w-24 flex items-center justify-center bg-[var(--brand)]/20 transition-opacity duration-200 ${
             translateX > 30 ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <Edit3 size={20} className="text-brand" />
+          <Edit3 size={20} className="text-[var(--brand)]" />
         </div>
         
         {/* Spacer */}
@@ -157,11 +157,11 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
         
         {/* Delete action (left side) */}
         <div 
-          className={`w-24 flex items-center justify-center bg-red/20 transition-opacity duration-200 ${
+          className={`w-24 flex items-center justify-center bg-[var(--red)]/20 transition-opacity duration-200 ${
             translateX < -30 ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <Trash2 size={20} className="text-red" />
+          <Trash2 size={20} className="text-[var(--red)]" />
         </div>
       </div>
 
@@ -184,10 +184,10 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{trip.flag}</span>
                 <div>
-                  <h3 className="font-semibold text-foreground">
+                  <h3 className="font-semibold text-[var(--text)]">
                     {trip.countryCode} • {trip.country}
                   </h3>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                  <div className="flex items-center gap-1 text-sm text-[var(--text-secondary)] mt-1">
                     <Calendar size={14} />
                     <span>{trip.entryDate} — {trip.exitDate}</span>
                   </div>
@@ -202,13 +202,13 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
             </div>
             
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1 text-sm text-[var(--text-secondary)]">
                 <MapPin size={14} />
                 <span>{trip.duration} {trip.duration === 1 ? 'день' : trip.duration < 5 ? 'дня' : 'дней'}</span>
               </div>
               
               {trip.notes && (
-                <span className="text-xs text-muted-foreground italic">
+                <span className="text-xs text-[var(--text-secondary)] italic">
                   {trip.notes.length > 30 ? `${trip.notes.substring(0, 30)}...` : trip.notes}
                 </span>
               )}
@@ -220,8 +220,8 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
       {/* Hint text */}
       {showActions && (
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="bg-surface/90 backdrop-blur-sm rounded-full px-3 py-1">
-            <p className="text-xs text-muted-foreground">
+          <div className="bg-[var(--surface)]/90 backdrop-blur-sm rounded-full px-3 py-1">
+            <p className="text-xs text-[var(--text-secondary)]">
               {translateX > 0 ? '👉 Редактировать' : '👈 Удалить'}
             </p>
           </div>
