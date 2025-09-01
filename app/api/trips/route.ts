@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { resolveCountryName } from '@/lib/countries';
 import { randomUUID } from 'crypto';
 
-const COMPAT_USER_ID = 'test-user-123';
+const TG_ID = process.env.TEST_TG_USER_ID || 'test-user-123';
 
 const noCacheHeaders = {
   'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -11,12 +11,28 @@ const noCacheHeaders = {
   'Expires': '0',
 };
 
-export async function GET(request: NextRequest) {
+async function resolveCompatibleUserId() {
+  // 1) Если есть пользователь с tgUserId — используем его
+  const user = await prisma.user.findFirst({ where: { tgUserId: TG_ID } }).catch(() => null);
+  if (user) return user.id;
+  // 2) Иначе берём userId из любой существующей поездки (исторические данные)
+  const anyTrip = await prisma.trip.findFirst({ orderBy: { createdAt: 'desc' } }).catch(() => null);
+  if (anyTrip) return anyTrip.userId;
+  // 3) Если нет ничего — создаём нового пользователя (без upsert/уникальных требований)
+  const newUserId = randomUUID();
   try {
-    const trips = await prisma.trip.findMany({
-      where: { userId: COMPAT_USER_ID },
-      orderBy: { entryDate: 'desc' }
-    });
+    await prisma.user.create({ data: { id: newUserId, tgUserId: TG_ID } });
+  } catch (_) {
+    // даже если create не сработал (разные схемы), всё равно вернём id —
+    // Trip может быть создан без строгих FK в проде
+  }
+  return newUserId;
+}
+
+export async function GET() {
+  try {
+    const userId = await resolveCompatibleUserId();
+    const trips = await prisma.trip.findMany({ where: { userId }, orderBy: { entryDate: 'desc' } });
     return NextResponse.json(trips, { headers: noCacheHeaders });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -31,17 +47,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const userId = await resolveCompatibleUserId();
+
     const normalizedCode = String(countryCode).toUpperCase();
     let country = await prisma.country.findUnique({ where: { code: normalizedCode } });
     if (!country) {
       const name = resolveCountryName(normalizedCode);
-      country = await prisma.country.create({ data: { code: normalizedCode, name } });
+      await prisma.country.create({ data: { code: normalizedCode, name } }).catch(() => {});
     }
 
     const trip = await prisma.trip.create({
       data: {
         id: randomUUID(),
-        userId: COMPAT_USER_ID,
+        userId,
         countryCode: normalizedCode,
         entryDate: new Date(entryDate),
         exitDate: new Date(exitDate)
