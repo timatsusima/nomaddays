@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const userId = await resolveCompatibleUserId();
 
     const normalizedCode = String(countryCode).toUpperCase();
-    let country = await prisma.country.findUnique({ where: { code: normalizedCode } });
+    const country = await prisma.country.findUnique({ where: { code: normalizedCode } });
     if (!country) {
       const name = resolveCountryName(normalizedCode);
       await prisma.country.create({ data: { code: normalizedCode, name } }).catch(() => {});
