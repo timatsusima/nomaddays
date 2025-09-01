@@ -33,7 +33,12 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.48.2",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "lucide-react": "^0.453.0",
+    "class-variance-authority": "^0.7.1",
+    "@radix-ui/react-slot": "^1.1.2",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.12",

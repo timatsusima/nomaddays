@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { CountrySelector } from '@/components/CountrySelector';
 import Navigation from '@/components/Navigation';
+import { SwipeableTripItem } from '../../../new card style/SwipeableTripItem';
+import { resolveCountryName, countryFlag } from '@/lib/countries';
 
 interface Trip {
   id: string;
@@ -222,11 +224,7 @@ export default function TripsPage() {
         )}
 
         {/* Trips List */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Список поездок
-          </h2>
-          
+        <div>
           {isLoading ? (
             <div className="text-center py-8">
               <div className="text-gray-500 dark:text-gray-400">Загрузка...</div>
@@ -241,35 +239,30 @@ export default function TripsPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip) => (
-                <div
-                  key={trip.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
-                >
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {trip.countryCode}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(trip.entryDate).toLocaleDateString('ru-RU')} - {new Date(trip.exitDate).toLocaleDateString('ru-RU')}
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(trip)}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      Изменить
-                    </button>
-                    <button
-                      onClick={() => handleDelete(trip.id)}
-                      className="text-red-600 hover:text-red-700 text-sm font-medium"
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                </div>
-              ))}
+              {trips.map((t) => {
+                const entry = new Date(t.entryDate);
+                const exit = new Date(t.exitDate);
+                const duration = Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                const flag = countryFlag(t.countryCode);
+                const name = resolveCountryName(t.countryCode);
+                return (
+                  <SwipeableTripItem
+                    key={t.id}
+                    trip={{
+                      id: t.id,
+                      country: name,
+                      countryCode: t.countryCode,
+                      flag,
+                      entryDate: entry.toLocaleDateString('ru-RU'),
+                      exitDate: exit.toLocaleDateString('ru-RU'),
+                      duration,
+                      status: exit < new Date() ? 'completed' : entry > new Date() ? 'planned' : 'ongoing',
+                    }}
+                    onEdit={() => handleEdit(t)}
+                    onDelete={() => handleDelete(t.id)}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
