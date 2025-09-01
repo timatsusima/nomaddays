@@ -5,7 +5,6 @@ import { CountrySelector } from '@/components/CountrySelector';
 import Navigation from '@/components/Navigation';
 import { SwipeableTripItem } from '@/components/SwipeableTripItem';
 import { resolveCountryName, countryFlag } from '@/lib/countries';
-import FlagIcon from '@/components/FlagIcon';
 
 interface Trip {
   id: string;
@@ -300,27 +299,21 @@ export default function TripsPage() {
                 const duration = Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24)) + 1;
                 const name = resolveCountryName(t.countryCode);
                 return (
-                  <div key={t.id} className="flex items-start gap-3">
-                    <div className="text-2xl">
-                      <FlagIcon code={t.countryCode} />
-                    </div>
-                    <div className="flex-1">
-                      <SwipeableTripItem
-                        trip={{
-                          id: t.id,
-                          country: name,
-                          countryCode: t.countryCode,
-                          flag: countryFlag(t.countryCode),
-                          entryDate: entry.toLocaleDateString('ru-RU'),
-                          exitDate: exit.toLocaleDateString('ru-RU'),
-                          duration,
-                          status: exit < new Date() ? 'completed' : entry > new Date() ? 'planned' : 'ongoing',
-                        }}
-                        onEdit={() => handleEdit(t)}
-                        onDelete={() => handleDelete(t.id)}
-                      />
-                    </div>
-                  </div>
+                  <SwipeableTripItem
+                    key={t.id}
+                    trip={{
+                      id: t.id,
+                      country: name,
+                      countryCode: t.countryCode,
+                      flag: countryFlag(t.countryCode),
+                      entryDate: entry.toLocaleDateString('ru-RU'),
+                      exitDate: exit.toLocaleDateString('ru-RU'),
+                      duration,
+                      status: exit < new Date() ? 'completed' : entry > new Date() ? 'planned' : 'ongoing',
+                    }}
+                    onEdit={() => handleEdit(t)}
+                    onDelete={() => handleDelete(t.id)}
+                  />
                 );
               })}
             </div>
