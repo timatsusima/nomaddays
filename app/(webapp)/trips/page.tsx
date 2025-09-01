@@ -5,6 +5,7 @@ import { CountrySelector } from '@/components/CountrySelector';
 import Navigation from '@/components/Navigation';
 import { SwipeableTripItem } from '@/components/SwipeableTripItem';
 import { resolveCountryName, countryFlag } from '@/lib/countries';
+import FlagIcon from '@/components/FlagIcon';
 
 interface Trip {
   id: string;
@@ -23,6 +24,7 @@ export default function TripsPage() {
   });
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'completed' | 'ongoing' | 'planned'>('all');
 
   useEffect(() => {
     loadTrips();
@@ -124,7 +126,8 @@ export default function TripsPage() {
     setFormData({
       countryCode: trip.countryCode,
       entryDate: trip.entryDate.split('T')[0],
-      exitDate: trip.exitDate.split('T')[0]
+      exitDate: trip.exitDate.split('T')[0],
+
     });
     setShowForm(true);
   };
@@ -134,6 +137,24 @@ export default function TripsPage() {
     setEditingTrip(null);
     setShowForm(false);
   };
+
+  // Фильтрация поездок
+  const filteredTrips = trips.filter(trip => {
+    const entry = new Date(trip.entryDate);
+    const exit = new Date(trip.exitDate);
+    const now = new Date();
+    
+    switch (filter) {
+      case 'completed':
+        return exit < now;
+      case 'ongoing':
+        return entry <= now && exit >= now;
+      case 'planned':
+        return entry > now;
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className="tg-webapp">
@@ -223,44 +244,83 @@ export default function TripsPage() {
           </div>
         )}
 
+        {/* Filters */}
+        {trips.length > 0 && (
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-4 py-2 rounded-lg transition-colors ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              >
+                Все
+              </button>
+              <button
+                onClick={() => setFilter('completed')}
+                className={`px-4 py-2 rounded-lg transition-colors ${filter === 'completed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              >
+                Завершённые
+              </button>
+              <button
+                onClick={() => setFilter('ongoing')}
+                className={`px-4 py-2 rounded-lg transition-colors ${filter === 'ongoing' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              >
+                Текущие
+              </button>
+              <button
+                onClick={() => setFilter('planned')}
+                className={`px-4 py-2 rounded-lg transition-colors ${filter === 'planned' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              >
+                Запланированные
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Trips List */}
         <div>
           {isLoading ? (
             <div className="text-center py-8">
               <div className="text-gray-500 dark:text-gray-400">Загрузка...</div>
             </div>
-          ) : trips.length === 0 ? (
+          ) : filteredTrips.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-4xl mb-4">✈️</div>
-              <div className="text-gray-500 dark:text-gray-400 mb-2">Нет поездок</div>
+              <div className="text-gray-500 dark:text-gray-400 mb-2">
+                {filter === 'all' ? 'Нет поездок' : `Нет ${filter === 'completed' ? 'завершённых' : filter === 'ongoing' ? 'текущих' : 'запланированных'} поездок`}
+              </div>
               <div className="text-sm text-gray-400 dark:text-gray-500">
-                Добавьте первую поездку, чтобы начать отслеживание
+                {filter === 'all' ? 'Добавьте первую поездку, чтобы начать отслеживание' : 'Попробуйте другой фильтр'}
               </div>
             </div>
           ) : (
             <div className="space-y-3">
-              {trips.map((t) => {
+              {filteredTrips.map((t) => {
                 const entry = new Date(t.entryDate);
                 const exit = new Date(t.exitDate);
                 const duration = Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                const flag = countryFlag(t.countryCode);
                 const name = resolveCountryName(t.countryCode);
                 return (
-                  <SwipeableTripItem
-                    key={t.id}
-                    trip={{
-                      id: t.id,
-                      country: name,
-                      countryCode: t.countryCode,
-                      flag,
-                      entryDate: entry.toLocaleDateString('ru-RU'),
-                      exitDate: exit.toLocaleDateString('ru-RU'),
-                      duration,
-                      status: exit < new Date() ? 'completed' : entry > new Date() ? 'planned' : 'ongoing',
-                    }}
-                    onEdit={() => handleEdit(t)}
-                    onDelete={() => handleDelete(t.id)}
-                  />
+                  <div key={t.id} className="flex items-start gap-3">
+                    <div className="text-2xl">
+                      <FlagIcon code={t.countryCode} />
+                    </div>
+                    <div className="flex-1">
+                      <SwipeableTripItem
+                        trip={{
+                          id: t.id,
+                          country: name,
+                          countryCode: t.countryCode,
+                          flag: countryFlag(t.countryCode),
+                          entryDate: entry.toLocaleDateString('ru-RU'),
+                          exitDate: exit.toLocaleDateString('ru-RU'),
+                          duration,
+                          status: exit < new Date() ? 'completed' : entry > new Date() ? 'planned' : 'ongoing',
+                        }}
+                        onEdit={() => handleEdit(t)}
+                        onDelete={() => handleDelete(t.id)}
+                      />
+                    </div>
+                  </div>
                 );
               })}
             </div>
