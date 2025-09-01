@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveCountryName } from '@/lib/countries';
 
-// Временный userId для тестирования
-const TEST_USER_ID = 'test-user-123';
+// Временный tgUserId для тестирования (в проде заменится TG initData)
+const TEST_TG_USER_ID = process.env.TEST_TG_USER_ID || 'test-user-123';
 
 // Заголовки для отключения кеширования
 const noCacheHeaders = {
@@ -17,12 +17,16 @@ export async function GET(request: NextRequest) {
   try {
     console.log('GET /api/trips - starting...');
     
-    // Временно используем hardcoded userId для тестирования
-    const userId = TEST_USER_ID;
-    console.log('Using userId:', userId);
+    // Находим/создаём пользователя по tgUserId
+    const user = await prisma.user.upsert({
+      where: { tgUserId: TEST_TG_USER_ID },
+      update: {},
+      create: { tgUserId: TEST_TG_USER_ID }
+    });
+    console.log('Using userId:', user.id);
 
     const trips = await prisma.trip.findMany({
-      where: { userId },
+      where: { userId: user.id },
       orderBy: { entryDate: 'desc' }
     });
 
@@ -63,9 +67,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Временно используем hardcoded userId для тестирования
-    const userId = TEST_USER_ID;
-    console.log('Using userId:', userId);
+    // Находим/создаём пользователя по tgUserId
+    const user = await prisma.user.upsert({
+      where: { tgUserId: TEST_TG_USER_ID },
+      update: {},
+      create: { tgUserId: TEST_TG_USER_ID }
+    });
+    console.log('Using userId:', user.id);
 
     // Убеждаемся, что страна существует, если нет — создаём
     const normalizedCode = String(countryCode).toUpperCase();
@@ -76,11 +84,11 @@ export async function POST(request: NextRequest) {
       console.log('Country created on the fly:', country);
     }
 
-    console.log('Creating trip with data:', { userId, countryCode, entryDate, exitDate });
+    console.log('Creating trip with data:', { userId: user.id, countryCode, entryDate, exitDate });
     
     const trip = await prisma.trip.create({
       data: {
-        userId,
+        userId: user.id,
         countryCode: normalizedCode,
         entryDate: new Date(entryDate),
         exitDate: new Date(exitDate)
