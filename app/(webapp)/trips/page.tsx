@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CountrySelector } from '@/components/CountrySelector';
 import Navigation from '@/components/Navigation';
-import { SwipeableTripItem } from '../../../new card style/SwipeableTripItem';
+import { SwipeableTripItem } from '@/components/SwipeableTripItem';
 import { resolveCountryName, countryFlag } from '@/lib/countries';
 
 interface Trip {
