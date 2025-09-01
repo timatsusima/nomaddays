@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { randomUUID } from 'crypto';
 
-const TEST_USER_ID = 'test-user-123';
+const TEST_TG_USER_ID = process.env.TEST_TG_USER_ID || 'test-user-123';
+
+async function getOrCreateUser(tgUserId: string) {
+  const existing = await prisma.user.findFirst({ where: { tgUserId } });
+  if (existing) return existing;
+  return prisma.user.create({ data: { id: randomUUID(), tgUserId } });
+}
 
 export async function GET(request: NextRequest) {
   try {
     console.log('GET /api/rules - starting...');
-    
-    const userId = TEST_USER_ID;
-    console.log('Using userId:', userId);
-    
-    const rules = await prisma.ruleProfile.findMany({ 
-      where: { userId } 
-    });
-    
+    const user = await getOrCreateUser(TEST_TG_USER_ID);
+    console.log('Using userId:', user.id);
+
+    const rules = await prisma.ruleProfile.findMany({ where: { userId: user.id } });
     console.log('Found rules:', rules.length);
     return NextResponse.json(rules);
   } catch (error) {
@@ -32,13 +35,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('POST /api/rules - starting...');
-    
     const body = await request.json();
     console.log('Request body:', body);
-    
+
     const { key, params, enabled } = body;
-    
-    if (!key || !params) {
+    if (!key || params === undefined || params === null) {
       console.log('Missing fields:', { key, params });
       return NextResponse.json(
         { 
@@ -49,19 +50,20 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    const userId = TEST_USER_ID;
-    console.log('Creating rule with data:', { userId, key, params, enabled });
-    
+
+    const user = await getOrCreateUser(TEST_TG_USER_ID);
+    const paramsString = typeof params === 'string' ? params : JSON.stringify(params);
+
     const rule = await prisma.ruleProfile.create({
       data: {
-        userId,
+        id: randomUUID(),
+        userId: user.id,
         key,
-        params: JSON.stringify(params),
+        params: paramsString,
         enabled: enabled ?? true
       }
     });
-    
+
     console.log('Rule created successfully:', rule);
     return NextResponse.json(rule, { status: 201 });
   } catch (error) {
