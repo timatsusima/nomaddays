@@ -5,16 +5,11 @@ const prisma = new PrismaClient();
 async function initializeDatabase() {
   try {
     console.log('🚀 Initializing database on Vercel...');
-    
-    // Подключаемся к базе
     await prisma.$connect();
     console.log('✅ Database connected');
-    
-    // Создаём таблицы (если их нет)
-    console.log('📋 Creating database schema...');
+
     await prisma.$executeRaw`CREATE SCHEMA IF NOT EXISTS public`;
-    
-    // Проверяем, есть ли таблицы
+
     const tableExistsResult = await prisma.$queryRaw`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
@@ -22,17 +17,13 @@ async function initializeDatabase() {
         AND table_name = 'Country'
       ) as exists;
     `;
-    
-    const tableExists = Array.isArray(tableExistsResult) && 
-                       tableExistsResult.length > 0 && 
-                       typeof tableExistsResult[0] === 'object' && 
-                       tableExistsResult[0] !== null &&
-                       'exists' in tableExistsResult[0] &&
-                       (tableExistsResult as any)[0].exists === true;
-    
+
+    const tableExists = Array.isArray(tableExistsResult) &&
+      tableExistsResult.length > 0 && typeof tableExistsResult[0] === 'object' &&
+      tableExistsResult[0] !== null && 'exists' in tableExistsResult[0] &&
+      (tableExistsResult as any)[0].exists === true;
+
     if (!tableExists) {
-      console.log('🔄 Tables don\'t exist, pushing schema...');
-      // Здесь мы не можем использовать prisma db push, поэтому создаём таблицы вручную
       await prisma.$executeRaw`
         CREATE TABLE IF NOT EXISTS "User" (
           "id" TEXT NOT NULL,
@@ -42,7 +33,6 @@ async function initializeDatabase() {
           CONSTRAINT "User_pkey" PRIMARY KEY ("id")
         );
       `;
-      
       await prisma.$executeRaw`
         CREATE TABLE IF NOT EXISTS "Country" (
           "code" TEXT NOT NULL,
@@ -50,7 +40,6 @@ async function initializeDatabase() {
           CONSTRAINT "Country_pkey" PRIMARY KEY ("code")
         );
       `;
-      
       await prisma.$executeRaw`
         CREATE TABLE IF NOT EXISTS "Trip" (
           "id" TEXT NOT NULL,
@@ -58,13 +47,11 @@ async function initializeDatabase() {
           "countryCode" TEXT NOT NULL,
           "entryDate" TIMESTAMP(3) NOT NULL,
           "exitDate" TIMESTAMP(3) NOT NULL,
-          "comment" TEXT,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           "updatedAt" TIMESTAMP(3) NOT NULL,
           CONSTRAINT "Trip_pkey" PRIMARY KEY ("id")
         );
       `;
-      
       await prisma.$executeRaw`
         CREATE TABLE IF NOT EXISTS "RuleProfile" (
           "id" TEXT NOT NULL,
@@ -77,7 +64,6 @@ async function initializeDatabase() {
           CONSTRAINT "RuleProfile_pkey" PRIMARY KEY ("id")
         );
       `;
-      
       await prisma.$executeRaw`
         CREATE TABLE IF NOT EXISTS "Setting" (
           "id" TEXT NOT NULL,
@@ -89,18 +75,10 @@ async function initializeDatabase() {
           CONSTRAINT "Setting_pkey" PRIMARY KEY ("id")
         );
       `;
-      
-      console.log('✅ Tables created successfully');
-    } else {
-      console.log('✅ Tables already exist');
     }
-    
-    // Заполняем данными, если таблицы пустые
+
     const countryCount = await prisma.country.count();
     if (countryCount === 0) {
-      console.log('🌱 Seeding database with initial data...');
-      
-      // Создаём страны
       await prisma.country.createMany({
         data: [
           { code: 'KZ', name: 'Казахстан' },
@@ -122,30 +100,15 @@ async function initializeDatabase() {
           { code: 'SE', name: 'Швеция' },
           { code: 'DK', name: 'Дания' },
           { code: 'NO', name: 'Норвегия' },
-          { code: 'US', name: 'США' },
+          { code: 'US', name: 'США' }
         ]
       });
-      
-      console.log('✅ Database seeded successfully');
-    } else {
-      console.log(`✅ Database already has ${countryCount} countries`);
     }
-    
-    console.log('🎉 Database initialization completed!');
-    
-  } catch (error) {
-    console.error('❌ Database initialization failed:', error);
-    throw error;
+  } catch (e) {
+    console.error(e);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-// Запускаем только если это Vercel
-if (process.env.VERCEL) {
-  initializeDatabase()
-    .catch((e) => {
-      console.error('Failed to initialize database:', e);
-      process.exit(1);
-    });
-}
+if (process.env.VERCEL) initializeDatabase().catch((e) => { console.error(e); process.exit(1); });

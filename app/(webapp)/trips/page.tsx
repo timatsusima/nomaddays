@@ -11,11 +11,13 @@ interface Trip {
   countryCode: string;
   entryDate: string;
   exitDate: string;
-  notes?: string;
 }
+
+type NotesMap = Record<string, string>;
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [notesMap, setNotesMap] = useState<NotesMap>({});
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     countryCode: '',
@@ -28,8 +30,15 @@ export default function TripsPage() {
   const [filter, setFilter] = useState<'all' | 'completed' | 'ongoing' | 'planned'>('all');
 
   useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('nomaddays_trip_notes') : null;
+    if (saved) setNotesMap(JSON.parse(saved));
     loadTrips();
   }, []);
+
+  const persistNotes = (next: NotesMap) => {
+    setNotesMap(next);
+    if (typeof window !== 'undefined') localStorage.setItem('nomaddays_trip_notes', JSON.stringify(next));
+  };
 
   const loadTrips = async () => {
     try {
@@ -66,8 +75,8 @@ export default function TripsPage() {
       const method = editingTrip ? 'PUT' : 'POST';
       
       const body = editingTrip 
-        ? { ...formData, id: editingTrip.id }
-        : formData;
+        ? { countryCode: formData.countryCode, entryDate: formData.entryDate, exitDate: formData.exitDate, id: editingTrip.id }
+        : { countryCode: formData.countryCode, entryDate: formData.entryDate, exitDate: formData.exitDate };
 
       const response = await fetch(url, {
         method,
@@ -76,11 +85,18 @@ export default function TripsPage() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        // Сохраняем комментарий локально
+        const newId = editingTrip ? editingTrip.id : result.id;
+        if (formData.notes) {
+          const next = { ...notesMap, [newId]: formData.notes };
+          persistNotes(next);
+        }
         await loadTrips();
         setFormData({ countryCode: '', entryDate: '', exitDate: '', notes: '' });
         setShowForm(false);
-        alert(editingTrip ? 'Поездка обновлена!' : 'Поездка добавлена!');
         setEditingTrip(null);
+        alert('Поездка сохранена');
       } else {
         const errorData = await response.json();
         alert(`Ошибка: ${errorData.error || 'Неизвестная ошибка'}`);
@@ -105,6 +121,9 @@ export default function TripsPage() {
       });
 
       if (response.ok) {
+        const next = { ...notesMap };
+        delete next[tripId];
+        persistNotes(next);
         await loadTrips();
         alert('Поездка удалена!');
       } else {
@@ -125,7 +144,7 @@ export default function TripsPage() {
       countryCode: trip.countryCode,
       entryDate: trip.entryDate.split('T')[0],
       exitDate: trip.exitDate.split('T')[0],
-      notes: trip.notes || ''
+      notes: notesMap[trip.id] || ''
     });
     setShowForm(true);
   };
@@ -136,7 +155,6 @@ export default function TripsPage() {
     setShowForm(false);
   };
 
-  // Фильтрация поездок (без изменений)
   const filteredTrips = trips.filter(trip => {
     const entry = new Date(trip.entryDate);
     const exit = new Date(trip.exitDate);
@@ -152,13 +170,11 @@ export default function TripsPage() {
   return (
     <div className="tg-webapp">
       <div className="max-w-2xl mx-auto p-4">
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[var(--text)] mb-2">Поездки</h1>
           <p className="text-[var(--text-secondary)]">Управляйте своими поездками</p>
         </div>
 
-        {/* Form Toggle */}
         <div className="mb-6">
           <button
             onClick={() => setShowForm(!showForm)}
@@ -168,7 +184,6 @@ export default function TripsPage() {
           </button>
         </div>
 
-        {/* Add/Edit Form */}
         {showForm && (
           <div className="card mb-6">
             <h2 className="card-title">{editingTrip ? 'Редактировать поездку' : 'Добавить поездку'}</h2>
@@ -176,11 +191,7 @@ export default function TripsPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm mb-1">Страна</label>
-                <CountrySelector
-                  value={formData.countryCode}
-                  onChange={(code) => setFormData({ ...formData, countryCode: code })}
-                  placeholder="Выберите страну"
-                />
+                <CountrySelector value={formData.countryCode} onChange={(code) => setFormData({ ...formData, countryCode: code })} placeholder="Выберите страну" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -211,7 +222,6 @@ export default function TripsPage() {
           </div>
         )}
 
-        {/* Trips List */}
         <div>
           {isLoading ? (
             <div className="text-center py-8">Загрузка...</div>
@@ -224,6 +234,7 @@ export default function TripsPage() {
                 const exit = new Date(t.exitDate);
                 const duration = Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24)) + 1;
                 const name = resolveCountryName(t.countryCode);
+                const note = notesMap[t.id];
                 return (
                   <SwipeableTripItem
                     key={t.id}
@@ -236,8 +247,8 @@ export default function TripsPage() {
                       exitDate: exit.toLocaleDateString('ru-RU'),
                       duration,
                       status: exit < new Date() ? 'completed' : entry > new Date() ? 'planned' : 'ongoing',
-                      notes: t.notes
-                    }}
+                      notes: note
+                    } as any}
                     onEdit={() => handleEdit(t)}
                     onDelete={() => handleDelete(t.id)}
                   />

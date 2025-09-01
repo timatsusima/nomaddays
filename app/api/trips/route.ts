@@ -37,13 +37,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { countryCode, entryDate, exitDate, notes } = body;
+    const { countryCode, entryDate, exitDate } = body;
 
     if (!countryCode || !entryDate || !exitDate) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-    if (notes && typeof notes === 'string' && notes.length > 256) {
-      return NextResponse.json({ error: 'Notes must be <= 256 chars' }, { status: 400 });
     }
 
     const user = await getOrCreateUser(TEST_TG_USER_ID);
@@ -61,8 +58,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         countryCode: normalizedCode,
         entryDate: new Date(entryDate),
-        exitDate: new Date(exitDate),
-        comment: notes || null
+        exitDate: new Date(exitDate)
       }
     });
 
@@ -75,13 +71,10 @@ export async function POST(request: NextRequest) {
 // PUT /api/trips - обновить поездку
 export async function PUT(request: NextRequest) {
   try {
-    const { id, countryCode, entryDate, exitDate, notes } = await request.json();
+    const { id, countryCode, entryDate, exitDate } = await request.json();
 
     if (!id || !countryCode || !entryDate || !exitDate) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-    if (notes && typeof notes === 'string' && notes.length > 256) {
-      return NextResponse.json({ error: 'Notes must be <= 256 chars' }, { status: 400 });
     }
 
     const existingTrip = await prisma.trip.findUnique({ where: { id } });
@@ -94,8 +87,7 @@ export async function PUT(request: NextRequest) {
       data: {
         countryCode: String(countryCode).toUpperCase(),
         entryDate: new Date(entryDate),
-        exitDate: new Date(exitDate),
-        comment: notes || null
+        exitDate: new Date(exitDate)
       }
     });
 
