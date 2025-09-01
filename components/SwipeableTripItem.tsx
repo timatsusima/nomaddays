@@ -3,6 +3,7 @@ import { CustomCard } from "./CustomCard";
 import { CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Calendar, MapPin, Trash2, Edit3 } from "lucide-react";
+import FlagIcon from '@/components/FlagIcon';
 
 interface Trip {
   id: string;
@@ -182,7 +183,9 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
           <CardContent className="p-4">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{trip.flag}</span>
+                <div className="w-7 h-7 rounded-sm overflow-hidden flex items-center justify-center">
+                  <FlagIcon code={trip.countryCode} />
+                </div>
                 <div>
                   <h3 className="font-semibold text-[var(--text)]">
                     {trip.countryCode} • {trip.country}
