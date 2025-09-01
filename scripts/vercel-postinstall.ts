@@ -28,7 +28,7 @@ async function initializeDatabase() {
                        typeof tableExistsResult[0] === 'object' && 
                        tableExistsResult[0] !== null &&
                        'exists' in tableExistsResult[0] &&
-                       tableExistsResult[0].exists === true;
+                       (tableExistsResult as any)[0].exists === true;
     
     if (!tableExists) {
       console.log('🔄 Tables don\'t exist, pushing schema...');
@@ -58,6 +58,7 @@ async function initializeDatabase() {
           "countryCode" TEXT NOT NULL,
           "entryDate" TIMESTAMP(3) NOT NULL,
           "exitDate" TIMESTAMP(3) NOT NULL,
+          "comment" TEXT,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           "updatedAt" TIMESTAMP(3) NOT NULL,
           CONSTRAINT "Trip_pkey" PRIMARY KEY ("id")
