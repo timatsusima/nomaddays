@@ -137,7 +137,7 @@ export function SwipeableTripItem({ trip, onEdit, onDelete }: SwipeableTripItemP
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  }, [handleMouseMove, handleMouseUp]);
 
   return (
     <div className="relative overflow-hidden rounded-lg">
