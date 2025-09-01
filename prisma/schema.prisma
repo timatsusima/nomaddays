@@ -1,13 +1,13 @@
-// This is your Prisma schema file for SQLite (development)
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma schema for production (PostgreSQL)
+// Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -37,8 +37,8 @@ model Trip {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  country Country @relation(fields: [countryCode], references: [code], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+  country Country @relation(fields: [countryCode], references: [code])
 
   @@index([userId])
   @@index([countryCode])
@@ -53,7 +53,7 @@ model RuleProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
 
   @@unique([userId, key])
   @@index([userId])
@@ -67,5 +67,5 @@ model Setting {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 }
