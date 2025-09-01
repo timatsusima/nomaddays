@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveCountryName } from '@/lib/countries';
+import { randomUUID } from 'crypto';
 
 // Временный tgUserId для тестирования (в проде заменится TG initData)
 const TEST_TG_USER_ID = process.env.TEST_TG_USER_ID || 'test-user-123';
@@ -12,144 +13,95 @@ const noCacheHeaders = {
   'Expires': '0',
 };
 
+async function getOrCreateUser(tgUserId: string) {
+  const existing = await prisma.user.findFirst({ where: { tgUserId } });
+  if (existing) return existing;
+  return prisma.user.create({ data: { id: randomUUID(), tgUserId } });
+}
+
 // GET /api/trips - получить все поездки пользователя
 export async function GET(request: NextRequest) {
   try {
-    console.log('GET /api/trips - starting...');
-    
-    // Находим/создаём пользователя по tgUserId
-    const user = await prisma.user.upsert({
-      where: { tgUserId: TEST_TG_USER_ID },
-      update: {},
-      create: { tgUserId: TEST_TG_USER_ID }
-    });
-    console.log('Using userId:', user.id);
-
+    const user = await getOrCreateUser(TEST_TG_USER_ID);
     const trips = await prisma.trip.findMany({
       where: { userId: user.id },
       orderBy: { entryDate: 'desc' }
     });
-
-    console.log('Found trips:', trips.length);
     return NextResponse.json(trips, { headers: noCacheHeaders });
   } catch (error) {
-    console.error('Error fetching trips:', error);
-    return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // POST /api/trips - создать новую поездку
 export async function POST(request: NextRequest) {
   try {
-    console.log('POST /api/trips - starting...');
-    
     const body = await request.json();
-    console.log('Request body:', body);
-    
-    const { countryCode, entryDate, exitDate } = body;
+    const { countryCode, entryDate, exitDate, notes } = body;
 
     if (!countryCode || !entryDate || !exitDate) {
-      console.log('Missing fields:', { countryCode, entryDate, exitDate });
-      return NextResponse.json(
-        { 
-          error: 'Missing required fields',
-          required: ['countryCode', 'entryDate', 'exitDate'],
-          received: { countryCode, entryDate, exitDate }
-        },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    if (notes && typeof notes === 'string' && notes.length > 256) {
+      return NextResponse.json({ error: 'Notes must be <= 256 chars' }, { status: 400 });
     }
 
-    // Находим/создаём пользователя по tgUserId
-    const user = await prisma.user.upsert({
-      where: { tgUserId: TEST_TG_USER_ID },
-      update: {},
-      create: { tgUserId: TEST_TG_USER_ID }
-    });
-    console.log('Using userId:', user.id);
+    const user = await getOrCreateUser(TEST_TG_USER_ID);
 
-    // Убеждаемся, что страна существует, если нет — создаём
     const normalizedCode = String(countryCode).toUpperCase();
     let country = await prisma.country.findUnique({ where: { code: normalizedCode } });
     if (!country) {
       const name = resolveCountryName(normalizedCode);
       country = await prisma.country.create({ data: { code: normalizedCode, name } });
-      console.log('Country created on the fly:', country);
     }
 
-    console.log('Creating trip with data:', { userId: user.id, countryCode, entryDate, exitDate });
-    
     const trip = await prisma.trip.create({
       data: {
+        id: randomUUID(),
         userId: user.id,
         countryCode: normalizedCode,
         entryDate: new Date(entryDate),
-        exitDate: new Date(exitDate)
+        exitDate: new Date(exitDate),
+        comment: notes || null
       }
     });
 
-    console.log('Trip created successfully:', trip);
     return NextResponse.json(trip, { status: 201 });
   } catch (error) {
-    console.error('Error creating trip:', error);
-    return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // PUT /api/trips - обновить поездку
 export async function PUT(request: NextRequest) {
   try {
-    const { id, countryCode, entryDate, exitDate } = await request.json();
+    const { id, countryCode, entryDate, exitDate, notes } = await request.json();
 
     if (!id || !countryCode || !entryDate || !exitDate) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    if (notes && typeof notes === 'string' && notes.length > 256) {
+      return NextResponse.json({ error: 'Notes must be <= 256 chars' }, { status: 400 });
     }
 
-    // Проверяем, существует ли поездка
-    const existingTrip = await prisma.trip.findUnique({
-      where: { id }
-    });
-
+    const existingTrip = await prisma.trip.findUnique({ where: { id } });
     if (!existingTrip) {
-      return NextResponse.json(
-        { error: 'Trip not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Trip not found' }, { status: 404 });
     }
 
     const trip = await prisma.trip.update({
       where: { id },
       data: {
-        countryCode,
+        countryCode: String(countryCode).toUpperCase(),
         entryDate: new Date(entryDate),
-        exitDate: new Date(exitDate)
+        exitDate: new Date(exitDate),
+        comment: notes || null
       }
     });
 
     return NextResponse.json(trip);
   } catch (error) {
-    console.error('Error updating trip:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
