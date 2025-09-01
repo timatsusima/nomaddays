@@ -1,4 +1,4 @@
-// Navigation Component v2.1 - Import removed (Updated: 2024-08-27 21:20)
+// Navigation Component v2.2 - Planner removed, Profile added
 'use client';
 
 import Link from 'next/link';
@@ -10,8 +10,8 @@ export default function Navigation() {
   const navItems = [
     { href: '/dashboard', label: 'Главная', icon: '🏠' },
     { href: '/trips', label: 'Поездки', icon: '📍' },
-    { href: '/planner', label: 'Планировщик', icon: '📅' },
     { href: '/rules', label: 'Правила', icon: '⭐' },
+    { href: '/profile', label: 'Профиль', icon: '👤' },
   ];
 
   return (
